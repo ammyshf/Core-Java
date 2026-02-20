@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HashMap &amp; ConcurrentHashMap — Complete Visual Guide | Amaan Nirban</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700;800&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Inter',sans-serif;background:#06060c;color:#fff;display:flex;flex-direction:column;align-items:center;padding:30px 0;}
+        .page{width:920px;background:linear-gradient(170deg,#0d0d18,#10101e 50%,#0d0d15);border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,0.06);box-shadow:0 0 80px rgba(0,180,255,0.05);}
+
+        /* ===== HERO ===== */
+        .hero{padding:44px 44px 34px;text-align:center;position:relative;border-bottom:1px solid rgba(255,255,255,0.06);}
+        .badge{position:absolute;top:20px;right:20px;background:linear-gradient(135deg,#ff416c,#ff4b2b);color:#fff;padding:8px 18px;border-radius:20px;font-weight:900;font-size:12px;letter-spacing:1.2px;box-shadow:0 4px 20px rgba(255,65,108,0.35);}
+        .hero h1{font-size:42px;font-weight:900;line-height:1.12;margin-bottom:8px;}
+        .grad{background:linear-gradient(90deg,#00d4ff,#a371f7,#ff6bcb);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+        .hero p{font-size:15px;font-weight:700;color:#666;line-height:1.6;}
+        .hero p b{color:#ccc;font-weight:800;}
+        .hero p .cy{color:#00d4ff;font-weight:800;} .hero p .gn{color:#3fb950;font-weight:800;} .hero p .pu{color:#a371f7;font-weight:800;} .hero p .rd{color:#ff6b6b;font-weight:800;}
+
+        /* ===== SECTIONS ===== */
+        .sec{padding:34px 42px;border-bottom:1px solid rgba(255,255,255,0.06);}
+        .sec:last-of-type{border-bottom:none;}
+        .sec-h{display:flex;align-items:center;gap:14px;margin-bottom:24px;}
+        .sec-n{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;flex-shrink:0;}
+        .sec-t{font-size:23px;font-weight:900;letter-spacing:0.3px;}
+        .sec-sub{font-size:14px;font-weight:700;color:#666;margin-top:2px;}
+
+        /* Theme colors */
+        .th-cy .sec-n{background:rgba(0,212,255,0.12);color:#00d4ff;border:2px solid rgba(0,212,255,0.3);}
+        .th-cy .sec-t{color:#00d4ff;}
+        .th-gn .sec-n{background:rgba(63,185,80,0.12);color:#3fb950;border:2px solid rgba(63,185,80,0.3);}
+        .th-gn .sec-t{color:#3fb950;}
+        .th-pu .sec-n{background:rgba(163,113,247,0.12);color:#a371f7;border:2px solid rgba(163,113,247,0.3);}
+        .th-pu .sec-t{color:#a371f7;}
+        .th-rd .sec-n{background:rgba(255,107,107,0.12);color:#ff6b6b;border:2px solid rgba(255,107,107,0.3);}
+        .th-rd .sec-t{color:#ff6b6b;}
+        .th-yw .sec-n{background:rgba(254,202,87,0.12);color:#feca57;border:2px solid rgba(254,202,87,0.3);}
+        .th-yw .sec-t{color:#feca57;}
+        .th-bl .sec-n{background:rgba(88,166,255,0.12);color:#58a6ff;border:2px solid rgba(88,166,255,0.3);}
+        .th-bl .sec-t{color:#58a6ff;}
+        .th-pk .sec-n{background:rgba(255,107,203,0.12);color:#ff6bcb;border:2px solid rgba(255,107,203,0.3);}
+        .th-pk .sec-t{color:#ff6bcb;}
+        .th-or .sec-n{background:rgba(255,165,0,0.12);color:#ffa500;border:2px solid rgba(255,165,0,0.3);}
+        .th-or .sec-t{color:#ffa500;}
+
+        /* ===== INTUITION BOXES ===== */
+        .why-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+        .why-card{border-radius:14px;padding:22px 24px;position:relative;overflow:hidden;}
+        .why-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+        .why-card.cy-card{background:rgba(0,212,255,0.04);border:1.5px solid rgba(0,212,255,0.15);}
+        .why-card.cy-card::before{background:linear-gradient(90deg,#00d4ff,#58a6ff);}
+        .why-card.pu-card{background:rgba(163,113,247,0.04);border:1.5px solid rgba(163,113,247,0.15);}
+        .why-card.pu-card::before{background:linear-gradient(90deg,#a371f7,#ff6bcb);}
+        .why-card.gn-card{background:rgba(63,185,80,0.04);border:1.5px solid rgba(63,185,80,0.15);}
+        .why-card.gn-card::before{background:linear-gradient(90deg,#3fb950,#00d4ff);}
+        .why-card.rd-card{background:rgba(255,107,107,0.04);border:1.5px solid rgba(255,107,107,0.15);}
+        .why-card.rd-card::before{background:linear-gradient(90deg,#ff6b6b,#feca57);}
+        .why-card.yw-card{background:rgba(254,202,87,0.04);border:1.5px solid rgba(254,202,87,0.15);}
+        .why-card.yw-card::before{background:linear-gradient(90deg,#feca57,#ffa500);}
+        .why-card.bl-card{background:rgba(88,166,255,0.04);border:1.5px solid rgba(88,166,255,0.15);}
+        .why-card.bl-card::before{background:linear-gradient(90deg,#58a6ff,#00d4ff);}
+        .why-card.or-card{background:rgba(255,165,0,0.04);border:1.5px solid rgba(255,165,0,0.15);}
+        .why-card.or-card::before{background:linear-gradient(90deg,#ffa500,#ff6b6b);}
+        .why-card.full{grid-column:1/-1;}
+
+        .why-label{font-size:11px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;}
+        .why-label.cy{color:#00d4ff;} .why-label.pu{color:#a371f7;} .why-label.gn{color:#3fb950;} .why-label.rd{color:#ff6b6b;} .why-label.yw{color:#feca57;} .why-label.bl{color:#58a6ff;} .why-label.or{color:#ffa500;}
+        .why-title{font-size:18px;font-weight:900;color:#fff;margin-bottom:8px;}
+        .why-desc{font-size:13px;font-weight:600;color:#999;line-height:1.6;}
+        .why-desc b{color:#fff;font-weight:800;}
+        .why-desc .cy{color:#00d4ff;font-weight:800;} .why-desc .pu{color:#a371f7;font-weight:800;} .why-desc .gn{color:#3fb950;font-weight:800;} .why-desc .rd{color:#ff6b6b;font-weight:800;} .why-desc .yw{color:#feca57;font-weight:800;} .why-desc .bl{color:#58a6ff;font-weight:800;} .why-desc .or{color:#ffa500;font-weight:800;}
+
+        /* ===== ANALOGY BOX ===== */
+        .analogy{background:rgba(255,255,255,0.03);border:1.5px solid rgba(255,255,255,0.08);border-radius:14px;padding:18px 22px;margin-top:16px;display:flex;align-items:flex-start;gap:16px;}
+        .analogy-icon{font-size:30px;flex-shrink:0;margin-top:2px;}
+        .analogy-text{font-size:13px;font-weight:700;color:#aaa;line-height:1.6;}
+        .analogy-text b{color:#fff;font-weight:900;}
+        .analogy-text .cy{color:#00d4ff;font-weight:800;} .analogy-text .pu{color:#a371f7;font-weight:800;} .analogy-text .gn{color:#3fb950;font-weight:800;} .analogy-text .rd{color:#ff6b6b;font-weight:800;} .analogy-text .yw{color:#feca57;font-weight:800;}
+
+        /* ===== VISUAL DIAGRAMS ===== */
+        .diagram{background:rgba(0,0,0,0.35);border-radius:14px;padding:22px 26px;margin:16px 0;border:1px solid rgba(255,255,255,0.05);}
+        .diagram-title{font-size:12px;font-weight:900;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;text-align:center;}
+        .diagram-title.cy{color:#00d4ff;} .diagram-title.pu{color:#a371f7;} .diagram-title.gn{color:#3fb950;} .diagram-title.rd{color:#ff6b6b;} .diagram-title.yw{color:#feca57;} .diagram-title.bl{color:#58a6ff;} .diagram-title.or{color:#ffa500;}
+
+        /* Array / bucket cells */
+        .arr{display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap;}
+        .c{width:42px;height:42px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;transition:all 0.3s;flex-shrink:0;}
+        .c.dim{background:rgba(255,255,255,0.05);color:#444;border:2px solid rgba(255,255,255,0.08);}
+        .c.cy{background:rgba(0,212,255,0.2);color:#00d4ff;border:2px solid rgba(0,212,255,0.4);}
+        .c.cy.hi{background:rgba(0,212,255,0.4);border-color:#00d4ff;}
+        .c.pu{background:rgba(163,113,247,0.2);color:#a371f7;border:2px solid rgba(163,113,247,0.4);}
+        .c.pu.hi{background:rgba(163,113,247,0.4);border-color:#a371f7;}
+        .c.gn{background:rgba(63,185,80,0.2);color:#3fb950;border:2px solid rgba(63,185,80,0.4);}
+        .c.gn.hi{background:rgba(63,185,80,0.4);border-color:#3fb950;}
+        .c.rd{background:rgba(255,107,107,0.2);color:#ff6b6b;border:2px solid rgba(255,107,107,0.4);}
+        .c.rd.hi{background:rgba(255,107,107,0.4);border-color:#ff6b6b;}
+        .c.yw{background:rgba(254,202,87,0.2);color:#feca57;border:2px solid rgba(254,202,87,0.4);}
+        .c.yw.hi{background:rgba(254,202,87,0.4);border-color:#feca57;}
+        .c.or{background:rgba(255,165,0,0.2);color:#ffa500;border:2px solid rgba(255,165,0,0.4);}
+        .c.or.hi{background:rgba(255,165,0,0.4);border-color:#ffa500;}
+        .c-sm{width:34px;height:34px;font-size:12px;}
+        .c-xs{width:26px;height:26px;font-size:11px;}
+        .c-lg{width:54px;height:54px;font-size:16px;}
+        .arr-label{font-size:11px;font-weight:900;letter-spacing:0.5px;text-align:center;margin-top:6px;}
+
+        /* Bucket visual */
+        .bucket-row{display:flex;align-items:center;gap:6px;margin-bottom:10px;}
+        .bucket-idx{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;background:rgba(255,255,255,0.06);color:#666;flex-shrink:0;}
+        .bucket-content{display:flex;align-items:center;gap:4px;flex:1;}
+        .node-box{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:800;}
+        .node-box.cy{background:rgba(0,212,255,0.1);color:#00d4ff;border:1.5px solid rgba(0,212,255,0.25);}
+        .node-box.gn{background:rgba(63,185,80,0.1);color:#3fb950;border:1.5px solid rgba(63,185,80,0.25);}
+        .node-box.pu{background:rgba(163,113,247,0.1);color:#a371f7;border:1.5px solid rgba(163,113,247,0.25);}
+        .node-box.rd{background:rgba(255,107,107,0.1);color:#ff6b6b;border:1.5px solid rgba(255,107,107,0.25);}
+        .node-box.yw{background:rgba(254,202,87,0.1);color:#feca57;border:1.5px solid rgba(254,202,87,0.25);}
+        .node-box.or{background:rgba(255,165,0,0.1);color:#ffa500;border:1.5px solid rgba(255,165,0,0.25);}
+        .arrow{color:#555;font-size:16px;font-weight:900;}
+        .null-label{font-size:11px;font-weight:800;color:#444;font-style:italic;}
+
+        /* Step rows */
+        .steps{display:flex;flex-direction:column;gap:12px;margin-top:16px;}
+        .step{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start;}
+        .step-num{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;flex-shrink:0;}
+        .step-num.cy{background:rgba(0,212,255,0.12);color:#00d4ff;border:2px solid rgba(0,212,255,0.3);}
+        .step-num.pu{background:rgba(163,113,247,0.12);color:#a371f7;border:2px solid rgba(163,113,247,0.3);}
+        .step-num.gn{background:rgba(63,185,80,0.12);color:#3fb950;border:2px solid rgba(63,185,80,0.3);}
+        .step-num.rd{background:rgba(255,107,107,0.12);color:#ff6b6b;border:2px solid rgba(255,107,107,0.3);}
+        .step-num.yw{background:rgba(254,202,87,0.12);color:#feca57;border:2px solid rgba(254,202,87,0.3);}
+        .step-num.bl{background:rgba(88,166,255,0.12);color:#58a6ff;border:2px solid rgba(88,166,255,0.3);}
+        .step-num.or{background:rgba(255,165,0,0.12);color:#ffa500;border:2px solid rgba(255,165,0,0.3);}
+        .step-body{background:rgba(255,255,255,0.025);border-radius:10px;padding:14px 18px;border:1px solid rgba(255,255,255,0.05);}
+        .step-text{font-size:13px;font-weight:700;color:#aaa;line-height:1.5;}
+        .step-text b{color:#fff;font-weight:900;}
+        .step-text .cy{color:#00d4ff;font-weight:800;} .step-text .pu{color:#a371f7;font-weight:800;} .step-text .gn{color:#3fb950;font-weight:800;} .step-text .rd{color:#ff6b6b;font-weight:800;} .step-text .yw{color:#feca57;font-weight:800;} .step-text .bl{color:#58a6ff;font-weight:800;} .step-text .or{color:#ffa500;font-weight:800;}
+        .result-tag{display:inline-block;font-size:12px;font-weight:900;padding:4px 12px;border-radius:8px;margin-top:6px;}
+        .result-tag.gn{background:rgba(63,185,80,0.15);color:#3fb950;}
+        .result-tag.rd{background:rgba(255,107,107,0.15);color:#ff6b6b;}
+        .result-tag.cy{background:rgba(0,212,255,0.15);color:#00d4ff;}
+        .result-tag.yw{background:rgba(254,202,87,0.15);color:#feca57;}
+
+        /* ===== CODE BLOCKS ===== */
+        .code-block{background:rgba(0,0,0,0.5);border-radius:12px;padding:18px 22px;margin:16px 0;border-left:4px solid;font-family:'JetBrains Mono','Courier New',monospace;font-size:12.5px;line-height:1.75;overflow-x:auto;white-space:pre;}
+        .code-block.cy-border{border-color:#00d4ff;} .code-block.pu-border{border-color:#a371f7;} .code-block.gn-border{border-color:#3fb950;} .code-block.rd-border{border-color:#ff6b6b;} .code-block.yw-border{border-color:#feca57;} .code-block.bl-border{border-color:#58a6ff;} .code-block.or-border{border-color:#ffa500;}
+        .kw{color:#ff79c6;font-weight:700;}
+        .fn{color:#8be9fd;font-weight:700;}
+        .str{color:#f1fa8c;}
+        .cm{color:#555;font-weight:600;}
+        .num{color:#bd93f9;}
+        .op{color:#ff79c6;}
+        .vr{color:#f8f8f2;font-weight:600;}
+        .an{color:#50fa7b;font-weight:700;}
+
+        /* Annotated code */
+        .code-annotated{display:flex;flex-direction:column;gap:0;margin:16px 0;}
+        .ca-line{display:grid;grid-template-columns:1fr 280px;gap:0;min-height:32px;}
+        .ca-code{background:rgba(0,0,0,0.5);padding:6px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:#f8f8f2;display:flex;align-items:center;line-height:1.5;}
+        .ca-line:first-child .ca-code{border-radius:10px 0 0 0;}
+        .ca-line:last-child .ca-code{border-radius:0 0 0 10px;}
+        .ca-note{padding:6px 14px;font-size:11px;font-weight:700;display:flex;align-items:center;line-height:1.4;}
+        .ca-line:first-child .ca-note{border-radius:0 10px 0 0;}
+        .ca-line:last-child .ca-note{border-radius:0 0 10px 0;}
+        .ca-note.cy{background:rgba(0,212,255,0.06);color:#00d4ff;border-left:2px solid rgba(0,212,255,0.3);}
+        .ca-note.pu{background:rgba(163,113,247,0.06);color:#a371f7;border-left:2px solid rgba(163,113,247,0.3);}
+        .ca-note.gn{background:rgba(63,185,80,0.06);color:#3fb950;border-left:2px solid rgba(63,185,80,0.3);}
+        .ca-note.rd{background:rgba(255,107,107,0.06);color:#ff6b6b;border-left:2px solid rgba(255,107,107,0.3);}
+        .ca-note.yw{background:rgba(254,202,87,0.06);color:#feca57;border-left:2px solid rgba(254,202,87,0.3);}
+        .ca-note.bl{background:rgba(88,166,255,0.06);color:#58a6ff;border-left:2px solid rgba(88,166,255,0.3);}
+        .ca-note.dim{background:rgba(255,255,255,0.02);color:#555;border-left:2px solid rgba(255,255,255,0.08);}
+
+        /* ===== CALLOUT ===== */
+        .callout{border-radius:12px;padding:16px 20px;margin:16px 0;display:flex;align-items:flex-start;gap:14px;}
+        .callout.cy{background:rgba(0,212,255,0.05);border:1.5px solid rgba(0,212,255,0.15);}
+        .callout.pu{background:rgba(163,113,247,0.05);border:1.5px solid rgba(163,113,247,0.15);}
+        .callout.gn{background:rgba(63,185,80,0.05);border:1.5px solid rgba(63,185,80,0.15);}
+        .callout.rd{background:rgba(255,107,107,0.05);border:1.5px solid rgba(255,107,107,0.15);}
+        .callout.yw{background:rgba(254,202,87,0.05);border:1.5px solid rgba(254,202,87,0.15);}
+        .callout-icon{font-size:22px;flex-shrink:0;margin-top:1px;}
+        .callout-body{flex:1;}
+        .callout-title{font-size:14px;font-weight:900;margin-bottom:4px;}
+        .callout-title.cy{color:#00d4ff;} .callout-title.pu{color:#a371f7;} .callout-title.gn{color:#3fb950;} .callout-title.rd{color:#ff6b6b;} .callout-title.yw{color:#feca57;} .callout-title.bl{color:#58a6ff;}
+        .callout-text{font-size:13px;font-weight:700;color:#999;line-height:1.55;}
+        .callout-text b{color:#fff;font-weight:900;}
+        .callout-text .cy{color:#00d4ff;font-weight:800;} .callout-text .pu{color:#a371f7;font-weight:800;} .callout-text .gn{color:#3fb950;font-weight:800;} .callout-text .rd{color:#ff6b6b;font-weight:800;} .callout-text .yw{color:#feca57;font-weight:800;} .callout-text .bl{color:#58a6ff;font-weight:800;}
+
+        /* ===== COMPARISON TABLE ===== */
+        .cmp-table{width:100%;border-collapse:separate;border-spacing:0;margin:16px 0;border-radius:12px;overflow:hidden;}
+        .cmp-table th{background:rgba(255,255,255,0.06);padding:12px 16px;font-size:13px;font-weight:900;text-align:left;border-bottom:1px solid rgba(255,255,255,0.08);}
+        .cmp-table td{padding:10px 16px;font-size:13px;font-weight:700;color:#aaa;border-bottom:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.02);}
+        .cmp-table tr:last-child td{border-bottom:none;}
+        .cmp-table td b{color:#fff;font-weight:900;}
+        .cmp-table td .cy{color:#00d4ff;font-weight:800;} .cmp-table td .pu{color:#a371f7;font-weight:800;} .cmp-table td .gn{color:#3fb950;font-weight:800;} .cmp-table td .rd{color:#ff6b6b;font-weight:800;} .cmp-table td .yw{color:#feca57;font-weight:800;}
+
+        /* ===== FLOW DIAGRAM ===== */
+        .flow{display:flex;flex-direction:column;align-items:center;gap:6px;margin:14px 0;}
+        .flow-box{padding:10px 22px;border-radius:10px;font-size:13px;font-weight:800;text-align:center;max-width:420px;}
+        .flow-box.cy{background:rgba(0,212,255,0.1);color:#00d4ff;border:1.5px solid rgba(0,212,255,0.25);}
+        .flow-box.gn{background:rgba(63,185,80,0.1);color:#3fb950;border:1.5px solid rgba(63,185,80,0.25);}
+        .flow-box.pu{background:rgba(163,113,247,0.1);color:#a371f7;border:1.5px solid rgba(163,113,247,0.25);}
+        .flow-box.rd{background:rgba(255,107,107,0.1);color:#ff6b6b;border:1.5px solid rgba(255,107,107,0.25);}
+        .flow-box.yw{background:rgba(254,202,87,0.1);color:#feca57;border:1.5px solid rgba(254,202,87,0.25);}
+        .flow-box.bl{background:rgba(88,166,255,0.1);color:#58a6ff;border:1.5px solid rgba(88,166,255,0.25);}
+        .flow-box.or{background:rgba(255,165,0,0.1);color:#ffa500;border:1.5px solid rgba(255,165,0,0.25);}
+        .flow-arrow{color:#555;font-size:18px;font-weight:900;}
+        .flow-split{display:flex;gap:20px;align-items:flex-start;justify-content:center;margin:6px 0;}
+        .flow-branch{display:flex;flex-direction:column;align-items:center;gap:6px;}
+        .flow-label{font-size:11px;font-weight:900;letter-spacing:0.5px;}
+        .flow-label.gn{color:#3fb950;} .flow-label.rd{color:#ff6b6b;}
+
+        /* ===== LOCK VISUAL ===== */
+        .lock-grid{display:grid;gap:8px;}
+        .lock-row{display:flex;align-items:center;gap:8px;}
+        .lock-cell{flex:1;padding:10px 14px;border-radius:8px;text-align:center;font-size:12px;font-weight:800;}
+
+        /* ===== FOOTER ===== */
+        .footer{padding:22px 42px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,0.06);}
+        .author{display:flex;align-items:center;gap:14px;}
+        .avatar{width:50px;height:50px;background:linear-gradient(135deg,#00d4ff,#a371f7);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;color:#000;}
+        .author-name{font-size:17px;font-weight:900;}
+        .author-tag{font-size:12px;font-weight:800;color:#666;}
+        .author-tag span{color:#3fb950;}
+        .cta-group{display:flex;gap:10px;}
+        .cta{padding:12px 24px;border-radius:22px;font-weight:900;font-size:13px;border:none;cursor:pointer;text-decoration:none;}
+        .cta.save{background:rgba(63,185,80,0.12);border:2px solid rgba(63,185,80,0.35);color:#3fb950;}
+        .cta.follow{background:linear-gradient(90deg,#00d4ff,#a371f7);color:#000;}
+
+        /* Utils */
+        .mt{margin-top:16px;} .mb{margin-bottom:16px;} .mt-sm{margin-top:10px;}
+        .center{text-align:center;}
+        .divider{height:1px;background:rgba(255,255,255,0.06);margin:20px 0;}
+        .tag-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+        .tag{font-size:11px;font-weight:900;padding:4px 12px;border-radius:8px;letter-spacing:0.5px;}
+        .tag.cy{background:rgba(0,212,255,0.12);color:#00d4ff;} .tag.gn{background:rgba(63,185,80,0.12);color:#3fb950;} .tag.pu{background:rgba(163,113,247,0.12);color:#a371f7;} .tag.rd{background:rgba(255,107,107,0.12);color:#ff6b6b;} .tag.yw{background:rgba(254,202,87,0.12);color:#feca57;} .tag.or{background:rgba(255,165,0,0.12);color:#ffa500;}
+    </style>
+</head>
+<body>
+<div class="page">
+
+<!-- ============================================== -->
+<!--                     HERO                       -->
+<!-- ============================================== -->
+<div class="hero">
+    <div class="badge">SAVE THIS</div>
+    <h1><span class="grad">HashMap</span> &amp; <span class="grad">ConcurrentHashMap</span></h1>
+    <p>
+        <b>Complete Internal Working</b> &mdash; from beginner to interview-ready.<br>
+        Visual diagrams, <span class="cy">annotated code</span>, <span class="gn">dry runs</span>, and the <span class="pu">hashCode-equals contract</span>.<br>
+        Everything in <span class="rd">one guide</span>.
+    </p>
+</div>
+
+
+<!-- ============================================== -->
+<!--  SECTION 1: WHAT IS HASHMAP                    -->
+<!-- ============================================== -->
+<div class="sec th-cy">
+    <div class="sec-h">
+        <div class="sec-n">1</div>
+        <div>
+            <div class="sec-t">What is a HashMap?</div>
+            <div class="sec-sub">The core idea &mdash; turning any key into a direct array index</div>
+        </div>
+    </div>
+
+    <div class="why-desc" style="font-size:15px;line-height:1.7;color:#bbb;margin-bottom:18px;">
+        A HashMap stores <b>key-value pairs</b>. Internally it's just an <span class="cy">array</span> (called <b>table</b>), where each slot is called a <b>bucket</b>. Given a key, we compute a <span class="gn">hash number</span> to find which bucket to store or retrieve from &mdash; giving us <span class="yw">O(1) average time</span>.
+    </div>
+
+    <div class="analogy">
+        <div class="analogy-icon">&#128218;</div>
+        <div class="analogy-text">
+            <b>Analogy:</b> Think of a <b>library</b>. Without hashing, you search every shelf one by one = <span class="rd">O(n)</span>. With hashing, the book's title tells you <b>exactly which shelf</b> to go to = <span class="gn">O(1)</span>. The hash function is your <span class="cy">shelf number calculator</span>.
+        </div>
+    </div>
+
+    <div class="diagram mt">
+        <div class="diagram-title cy">HASHMAP = ARRAY OF BUCKETS (default 16)</div>
+        <div style="display:flex;align-items:flex-start;justify-content:center;gap:6px;flex-wrap:wrap;">
+            <div style="text-align:center"><div class="c c-sm dim">0</div><div class="arr-label" style="color:#444">null</div></div>
+            <div style="text-align:center"><div class="c c-sm dim">1</div><div class="arr-label" style="color:#444">null</div></div>
+            <div style="text-align:center"><div class="c c-sm cy hi">2</div><div class="arr-label" style="color:#00d4ff">Joe</div></div>
+            <div style="text-align:center"><div class="c c-sm dim">3</div><div class="arr-label" style="color:#444">null</div></div>
+            <div style="text-align:center"><div class="c c-sm dim">4</div><div class="arr-label" style="color:#444">null</div></div>
+            <div style="text-align:center"><div class="c c-sm gn hi">5</div><div class="arr-label" style="color:#3fb950">Sam</div></div>
+            <div style="text-align:center"><div class="c c-sm dim">6</div><div class="arr-label" style="color:#444">null</div></div>
+            <div style="text-align:center"><div class="c c-sm pu hi">7</div><div class="arr-label" style="color:#a371f7">Amy</div></div>
+            <div style="text-align:center"><div class="c c-sm dim">8</div><div class="arr-label" style="color:#444">null</div></div>
+            <div style="text-align:center"><div class="c c-sm dim">9</div><div class="arr-label" style="color:#444">null</div></div>
+            <div style="text-align:center"><div class="c c-sm dim">10</div><div class="arr-label" style="color:#444">null</div></div>
+            <div style="text-align:center"><div class="c c-sm rd hi">11</div><div class="arr-label" style="color:#ff6b6b">Raj</div></div>
+            <div style="text-align:center"><div class="c c-sm dim">12</div><div class="arr-label" style="color:#444">null</div></div>
+            <div style="text-align:center"><div class="c c-sm dim">13</div><div class="arr-label" style="color:#444">null</div></div>
+            <div style="text-align:center"><div class="c c-sm dim">14</div><div class="arr-label" style="color:#444">null</div></div>
+            <div style="text-align:center"><div class="c c-sm dim">15</div><div class="arr-label" style="color:#444">null</div></div>
+        </div>
+        <div class="arr-label mt-sm" style="color:#888;">Each key is hashed to find its bucket index. <span style="color:#00d4ff;">Joe</span> &rarr; bucket 2, <span style="color:#3fb950;">Sam</span> &rarr; bucket 5, etc.</div>
+    </div>
+</div>
+
+
+<!-- ============================================== -->
+<!--  SECTION 2: INTERNAL NODE STRUCTURE            -->
+<!-- ============================================== -->
+<div class="sec th-gn">
+    <div class="sec-h">
+        <div class="sec-n">2</div>
+        <div>
+            <div class="sec-t">Internal Node Structure</div>
+            <div class="sec-sub">Each entry is a Node object &mdash; key, value, hash, and a pointer to next</div>
+        </div>
+    </div>
+
+    <div class="code-block gn-border"><span class="kw">static class</span> <span class="fn">Node</span>&lt;K,V&gt; {
+    <span class="kw">final int</span>    <span class="vr">hash</span>;     <span class="cm">// cached hash value (avoids re-computation)</span>
+    <span class="kw">final</span> K      <span class="vr">key</span>;      <span class="cm">// "Apple", "Sam", etc.</span>
+    V            <span class="vr">value</span>;    <span class="cm">// 100, 21, etc.</span>
+    Node&lt;K,V&gt;    <span class="vr">next</span>;     <span class="cm">// pointer to next node (for collisions)</span>
+}</div>
+
+    <div class="diagram">
+        <div class="diagram-title gn">VISUAL: A SINGLE NODE</div>
+        <div style="display:flex;justify-content:center;">
+            <div style="background:rgba(63,185,80,0.08);border:2px solid rgba(63,185,80,0.25);border-radius:14px;padding:18px 28px;display:inline-flex;flex-direction:column;gap:6px;">
+                <div style="display:flex;gap:20px;">
+                    <div><span style="font-size:11px;font-weight:900;color:#666;">HASH</span><br><span style="font-size:16px;font-weight:900;color:#3fb950;">63477</span></div>
+                    <div><span style="font-size:11px;font-weight:900;color:#666;">KEY</span><br><span style="font-size:16px;font-weight:900;color:#00d4ff;">"Apple"</span></div>
+                    <div><span style="font-size:11px;font-weight:900;color:#666;">VALUE</span><br><span style="font-size:16px;font-weight:900;color:#a371f7;">100</span></div>
+                    <div><span style="font-size:11px;font-weight:900;color:#666;">NEXT</span><br><span style="font-size:16px;font-weight:900;color:#ff6b6b;">&#x2192; null</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="callout gn">
+        <div class="callout-icon">&#128161;</div>
+        <div class="callout-body">
+            <div class="callout-title gn">Why store hash in the node?</div>
+            <div class="callout-text">
+                During <b>resize</b>, HashMap must recalculate every node's bucket index. Caching the hash avoids calling <span class="cy">hashCode()</span> again for every node &mdash; a significant <span class="gn">performance optimization</span>.
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================== -->
+<!--  SECTION 3: HASHING — FROM KEY TO INDEX        -->
+<!-- ============================================== -->
+<div class="sec th-pu">
+    <div class="sec-h">
+        <div class="sec-n">3</div>
+        <div>
+            <div class="sec-t">Hashing &mdash; From Key to Bucket Index</div>
+            <div class="sec-sub">Three steps: hashCode() &rarr; spread bits &rarr; bucket index</div>
+        </div>
+    </div>
+
+    <div class="flow">
+        <div class="flow-box pu" style="font-size:15px;"><b>"Apple"</b></div>
+        <div class="flow-arrow">&#8595;</div>
+        <div class="flow-box cy"><b>Step 1:</b> key.hashCode() &rarr; 63476538</div>
+        <div class="flow-arrow">&#8595;</div>
+        <div class="flow-box gn"><b>Step 2:</b> hash = hashCode ^ (hashCode &gt;&gt;&gt; 16) &rarr; 63477765</div>
+        <div class="flow-arrow">&#8595;</div>
+        <div class="flow-box yw"><b>Step 3:</b> index = (16 - 1) &amp; hash &rarr; <b>5</b></div>
+        <div class="flow-arrow">&#8595;</div>
+        <div class="flow-box rd">"Apple" goes to <b>Bucket 5</b></div>
+    </div>
+
+    <div class="why-grid mt">
+        <div class="why-card gn-card">
+            <div class="why-label gn">STEP 2 &mdash; WHY XOR UPPER BITS?</div>
+            <div class="why-title">Spread Function</div>
+            <div class="why-desc">
+                When table is small (16 buckets), only the <b>last 4 bits</b> of hash decide the bucket. If many keys differ only in upper bits, they'd all <span class="rd">collide</span>. XOR'ing with upper bits <span class="gn">spreads the influence</span> of all 32 bits into the lower bits.
+            </div>
+        </div>
+        <div class="why-card yw-card">
+            <div class="why-label yw">STEP 3 &mdash; WHY &amp; NOT %?</div>
+            <div class="why-title">Bitwise AND is faster</div>
+            <div class="why-desc">
+                <span class="yw">(n-1) &amp; hash</span> gives the same result as <b>hash % n</b> when n is a <span class="cy">power of 2</span>. But bitwise AND is a <b>single CPU instruction</b> &mdash; much faster than modulo division.
+            </div>
+        </div>
+    </div>
+
+    <div class="code-block pu-border"><span class="cm">// HashMap's actual internal hash function</span>
+<span class="kw">static final int</span> <span class="fn">hash</span>(Object key) {
+    <span class="kw">int</span> h;
+    <span class="kw">return</span> (key == <span class="kw">null</span>) ? <span class="num">0</span>
+         : (h = key.<span class="fn">hashCode</span>()) ^ (h &gt;&gt;&gt; <span class="num">16</span>);
+}
+
+<span class="cm">// Index calculation</span>
+<span class="kw">int</span> index = (table.length - <span class="num">1</span>) &amp; <span class="fn">hash</span>(key);</div>
+</div>
+
+
+<!-- ============================================== -->
+<!--  SECTION 4: PUT() OPERATION                    -->
+<!-- ============================================== -->
+<div class="sec th-cy">
+    <div class="sec-h">
+        <div class="sec-n">4</div>
+        <div>
+            <div class="sec-t">put() &mdash; Step by Step Visual Dry Run</div>
+            <div class="sec-sub">Tracing map.put("Apple", 100) through the entire internal flow</div>
+        </div>
+    </div>
+
+    <!-- Flow diagram -->
+    <div class="diagram">
+        <div class="diagram-title cy">PUT() DECISION FLOW</div>
+        <div class="flow">
+            <div class="flow-box cy"><b>put(key, value)</b></div>
+            <div class="flow-arrow">&#8595;</div>
+            <div class="flow-box pu">hash = key.hashCode() ^ (hashCode &gt;&gt;&gt; 16)</div>
+            <div class="flow-arrow">&#8595;</div>
+            <div class="flow-box gn">index = (n - 1) &amp; hash</div>
+            <div class="flow-arrow">&#8595;</div>
+            <div class="flow-box yw">Is table[index] == null?</div>
+            <div class="flow-split">
+                <div class="flow-branch">
+                    <div class="flow-label gn">YES</div>
+                    <div class="flow-arrow">&#8595;</div>
+                    <div class="flow-box gn">Create new Node<br>Place at table[index]</div>
+                </div>
+                <div class="flow-branch">
+                    <div class="flow-label rd">NO (Collision!)</div>
+                    <div class="flow-arrow">&#8595;</div>
+                    <div class="flow-box rd">Traverse list/tree<br>Key exists? Update value<br>Key new? Add to end</div>
+                </div>
+            </div>
+            <div class="flow-arrow">&#8595;</div>
+            <div class="flow-box or">size &gt; threshold? &rarr; Resize (double capacity)</div>
+        </div>
+    </div>
+
+    <!-- Dry run -->
+    <div style="font-size:14px;font-weight:800;color:#fff;margin-top:20px;margin-bottom:8px;">Dry Run: Adding 4 Entries</div>
+    <div class="steps">
+        <div class="step">
+            <div class="step-num cy">1</div>
+            <div class="step-body">
+                <div class="step-text"><b>put("Sam", 21)</b> &rarr; hash &rarr; index = <span class="cy">5</span> &rarr; bucket[5] is <span class="gn">empty</span> &rarr; place node</div>
+                <div style="margin-top:8px;">
+                    <div class="bucket-row"><div class="bucket-idx">5</div><div class="bucket-content"><div class="node-box cy">Sam : 21</div><span class="arrow">&rarr;</span><span class="null-label">null</span></div></div>
+                </div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num cy">2</div>
+            <div class="step-body">
+                <div class="step-text"><b>put("Joe", 25)</b> &rarr; hash &rarr; index = <span class="cy">2</span> &rarr; bucket[2] is <span class="gn">empty</span> &rarr; place node</div>
+                <div style="margin-top:8px;">
+                    <div class="bucket-row"><div class="bucket-idx">2</div><div class="bucket-content"><div class="node-box gn">Joe : 25</div><span class="arrow">&rarr;</span><span class="null-label">null</span></div></div>
+                    <div class="bucket-row"><div class="bucket-idx">5</div><div class="bucket-content"><div class="node-box cy">Sam : 21</div><span class="arrow">&rarr;</span><span class="null-label">null</span></div></div>
+                </div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num cy">3</div>
+            <div class="step-body">
+                <div class="step-text"><b>put("Amy", 30)</b> &rarr; hash &rarr; index = <span class="cy">7</span> &rarr; bucket[7] is <span class="gn">empty</span> &rarr; place node</div>
+                <div style="margin-top:8px;">
+                    <div class="bucket-row"><div class="bucket-idx">2</div><div class="bucket-content"><div class="node-box gn">Joe : 25</div><span class="arrow">&rarr;</span><span class="null-label">null</span></div></div>
+                    <div class="bucket-row"><div class="bucket-idx">5</div><div class="bucket-content"><div class="node-box cy">Sam : 21</div><span class="arrow">&rarr;</span><span class="null-label">null</span></div></div>
+                    <div class="bucket-row"><div class="bucket-idx">7</div><div class="bucket-content"><div class="node-box pu">Amy : 30</div><span class="arrow">&rarr;</span><span class="null-label">null</span></div></div>
+                </div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num rd">4</div>
+            <div class="step-body">
+                <div class="step-text"><b>put("Raj", 28)</b> &rarr; hash &rarr; index = <span class="rd">5</span> &rarr; bucket[5] has <b>Sam</b>! <span class="rd">COLLISION!</span><br>Traverse: "Raj".equals("Sam")? <span class="rd">NO</span> &rarr; Sam.next is null &rarr; <span class="gn">add Raj at end</span></div>
+                <div style="margin-top:8px;">
+                    <div class="bucket-row"><div class="bucket-idx">2</div><div class="bucket-content"><div class="node-box gn">Joe : 25</div><span class="arrow">&rarr;</span><span class="null-label">null</span></div></div>
+                    <div class="bucket-row"><div class="bucket-idx" style="background:rgba(255,107,107,0.15);color:#ff6b6b;">5</div><div class="bucket-content"><div class="node-box cy">Sam : 21</div><span class="arrow">&rarr;</span><div class="node-box rd">Raj : 28</div><span class="arrow">&rarr;</span><span class="null-label">null</span></div></div>
+                    <div class="bucket-row"><div class="bucket-idx">7</div><div class="bucket-content"><div class="node-box pu">Amy : 30</div><span class="arrow">&rarr;</span><span class="null-label">null</span></div></div>
+                </div>
+                <div class="result-tag rd" style="margin-top:8px;">Collision handled via Linked List (Separate Chaining)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Annotated code -->
+    <div style="font-size:14px;font-weight:800;color:#fff;margin-top:24px;margin-bottom:4px;">Annotated put() Code</div>
+    <div class="code-annotated">
+        <div class="ca-line"><div class="ca-code"><span class="kw">public</span> V <span class="fn">put</span>(K key, V value) {</div><div class="ca-note dim">entry point</div></div>
+        <div class="ca-line"><div class="ca-code">&nbsp;&nbsp;<span class="kw">int</span> hash = key.<span class="fn">hashCode</span>() ^ (h &gt;&gt;&gt; <span class="num">16</span>);</div><div class="ca-note cy">Step 1: compute spread hash</div></div>
+        <div class="ca-line"><div class="ca-code">&nbsp;&nbsp;<span class="kw">int</span> i = (n - <span class="num">1</span>) &amp; hash;</div><div class="ca-note gn">Step 2: bucket index</div></div>
+        <div class="ca-line"><div class="ca-code">&nbsp;&nbsp;<span class="kw">if</span> (table[i] == <span class="kw">null</span>)</div><div class="ca-note yw">Step 3: bucket empty?</div></div>
+        <div class="ca-line"><div class="ca-code">&nbsp;&nbsp;&nbsp;&nbsp;table[i] = <span class="kw">new</span> <span class="fn">Node</span>(hash, key, value);</div><div class="ca-note gn">YES &rarr; create node here</div></div>
+        <div class="ca-line"><div class="ca-code">&nbsp;&nbsp;<span class="kw">else</span> { <span class="cm">/* traverse chain */</span></div><div class="ca-note rd">NO &rarr; collision! walk the list</div></div>
+        <div class="ca-line"><div class="ca-code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (node.hash == hash &amp;&amp; key.<span class="fn">equals</span>(k))</div><div class="ca-note pu">key exists? update value</div></div>
+        <div class="ca-line"><div class="ca-code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">else</span> p.next = <span class="kw">new</span> <span class="fn">Node</span>(...);</div><div class="ca-note cy">new key &rarr; append to end</div></div>
+        <div class="ca-line"><div class="ca-code">&nbsp;&nbsp;<span class="kw">if</span> (++size &gt; threshold) <span class="fn">resize</span>();</div><div class="ca-note rd">too full? double the array</div></div>
+        <div class="ca-line"><div class="ca-code">}</div><div class="ca-note dim"></div></div>
+    </div>
+</div>
+
+
+<!-- ============================================== -->
+<!--  SECTION 5: GET() OPERATION                    -->
+<!-- ============================================== -->
+<div class="sec th-gn">
+    <div class="sec-h">
+        <div class="sec-n">5</div>
+        <div>
+            <div class="sec-t">get() &mdash; How Retrieval Works</div>
+            <div class="sec-sub">Tracing map.get("Raj") to find value 28</div>
+        </div>
+    </div>
+
+    <div class="steps">
+        <div class="step">
+            <div class="step-num gn">1</div>
+            <div class="step-body">
+                <div class="step-text"><b>hash("Raj")</b> &rarr; calculate spread hash &rarr; index = <span class="cy">5</span></div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num gn">2</div>
+            <div class="step-body">
+                <div class="step-text">Go to <span class="cy">table[5]</span> &rarr; first node is <b>Sam</b></div>
+                <div style="margin-top:8px;">
+                    <div class="bucket-row"><div class="bucket-idx">5</div><div class="bucket-content"><div class="node-box yw" style="position:relative;">Sam : 21 <span style="position:absolute;top:-16px;right:0;font-size:10px;color:#ff6b6b;font-weight:900;">&#8593; checking</span></div><span class="arrow">&rarr;</span><div class="node-box cy">Raj : 28</div></div></div>
+                </div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num gn">3</div>
+            <div class="step-body">
+                <div class="step-text"><b>Check 1:</b> hash matches? <span class="gn">YES</span>. <b>Check 2:</b> "Raj".equals("Sam")? <span class="rd">NO</span> &rarr; move to <b>next</b> node</div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num gn">4</div>
+            <div class="step-body">
+                <div class="step-text"><b>Check 1:</b> hash matches? <span class="gn">YES</span>. <b>Check 2:</b> "Raj".equals("Raj")? <span class="gn">YES!</span> &rarr; <b>return 28</b></div>
+                <div class="result-tag gn">Found! Return value = 28</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="callout gn">
+        <div class="callout-icon">&#9889;</div>
+        <div class="callout-body">
+            <div class="callout-title gn">Two checks, not one</div>
+            <div class="callout-text">
+                HashMap always checks <span class="cy">hash first</span> (fast integer comparison), then <span class="pu">equals()</span> (slower object comparison). If hash doesn't match, it <b>skips equals() entirely</b> &mdash; a key performance optimization.
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================== -->
+<!--  SECTION 6: COLLISION &amp; TREEIFICATION      -->
+<!-- ============================================== -->
+<div class="sec th-rd">
+    <div class="sec-h">
+        <div class="sec-n">6</div>
+        <div>
+            <div class="sec-t">Collision Handling &amp; Treeification</div>
+            <div class="sec-sub">When multiple keys land in the same bucket &mdash; Linked List &rarr; Red-Black Tree</div>
+        </div>
+    </div>
+
+    <div class="diagram">
+        <div class="diagram-title rd">LINKED LIST (< 8 NODES) &mdash; O(n) SEARCH</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:4px;">
+            <div class="node-box cy" style="font-size:11px;">K1</div><span class="arrow">&rarr;</span>
+            <div class="node-box cy" style="font-size:11px;">K2</div><span class="arrow">&rarr;</span>
+            <div class="node-box cy" style="font-size:11px;">K3</div><span class="arrow">&rarr;</span>
+            <div class="node-box cy" style="font-size:11px;">K4</div><span class="arrow">&rarr;</span>
+            <div class="node-box cy" style="font-size:11px;">K5</div><span class="arrow">&rarr;</span>
+            <div class="node-box cy" style="font-size:11px;">K6</div><span class="arrow">&rarr;</span>
+            <div class="node-box cy" style="font-size:11px;">K7</div><span class="arrow">&rarr;</span>
+            <span class="null-label">null</span>
+        </div>
+        <div class="arr-label" style="color:#888;margin-top:10px;">Must check one by one. Worst case: check ALL nodes.</div>
+    </div>
+
+    <div class="diagram">
+        <div class="diagram-title gn">RED-BLACK TREE (&ge; 8 NODES) &mdash; O(log n) SEARCH</div>
+        <div style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:800;color:#3fb950;line-height:1.8;">
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[ K4 ]</div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\</div>
+            <div>&nbsp;&nbsp;[ K2 ]&nbsp;&nbsp;&nbsp;&nbsp;[ K6 ]</div>
+            <div>&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;\&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;\</div>
+            <div>[K1]&nbsp;[K3]&nbsp;[K5]&nbsp;[K7]</div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\</div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[K8]</div>
+        </div>
+        <div class="arr-label" style="color:#888;margin-top:10px;">Binary search: only 3 comparisons to find any of 8 nodes!</div>
+    </div>
+
+    <div class="why-grid">
+        <div class="why-card rd-card">
+            <div class="why-label rd">TREEIFY THRESHOLD = 8</div>
+            <div class="why-title">List &rarr; Tree</div>
+            <div class="why-desc">When a bucket has <b>8 or more</b> nodes AND table length &ge; <span class="cy">64</span>, the linked list <span class="rd">converts to a Red-Black Tree</span>. This brings worst-case from O(n) to <span class="gn">O(log n)</span>.</div>
+        </div>
+        <div class="why-card gn-card">
+            <div class="why-label gn">UNTREEIFY THRESHOLD = 6</div>
+            <div class="why-title">Tree &rarr; List</div>
+            <div class="why-desc">During resize, if a tree bucket shrinks to <b>6 or fewer</b> nodes, it <span class="gn">converts back to a linked list</span>. Trees have overhead &mdash; not worth it for small buckets.</div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================== -->
+<!--  SECTION 7: RESIZING                           -->
+<!-- ============================================== -->
+<div class="sec th-yw">
+    <div class="sec-h">
+        <div class="sec-n">7</div>
+        <div>
+            <div class="sec-t">Resizing &amp; Rehashing</div>
+            <div class="sec-sub">When size exceeds threshold, capacity doubles and every entry is rehashed</div>
+        </div>
+    </div>
+
+    <div class="why-card yw-card full" style="margin-bottom:16px;">
+        <div class="why-label yw">THE FORMULA</div>
+        <div class="why-desc" style="font-size:15px;line-height:1.8;">
+            <b>threshold</b> = capacity &times; loadFactor<br>
+            Default: <span class="cy">16</span> &times; <span class="gn">0.75</span> = <span class="yw">12</span><br>
+            When <b>13th entry</b> is added &rarr; resize to <span class="rd">32 buckets</span> &rarr; rehash all entries
+        </div>
+    </div>
+
+    <div class="diagram">
+        <div class="diagram-title yw">BEFORE RESIZE &mdash; 16 BUCKETS, 12 ENTRIES</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;">
+            <div class="c c-sm gn">&#9679;</div><div class="c c-sm dim">&nbsp;</div><div class="c c-sm gn">&#9679;</div><div class="c c-sm gn">&#9679;</div>
+            <div class="c c-sm dim">&nbsp;</div><div class="c c-sm gn">&#9679;</div><div class="c c-sm gn">&#9679;</div><div class="c c-sm gn">&#9679;</div>
+            <div class="c c-sm dim">&nbsp;</div><div class="c c-sm gn">&#9679;</div><div class="c c-sm gn">&#9679;</div><div class="c c-sm gn">&#9679;</div>
+            <div class="c c-sm dim">&nbsp;</div><div class="c c-sm gn">&#9679;</div><div class="c c-sm gn">&#9679;</div><div class="c c-sm gn">&#9679;</div>
+        </div>
+        <div class="arr-label" style="color:#feca57;margin-top:8px;">12/16 = 75% full &rarr; THRESHOLD REACHED!</div>
+    </div>
+    <div style="text-align:center;font-size:28px;color:#feca57;font-weight:900;">&#8595; RESIZE &times;2 &#8595;</div>
+    <div class="diagram">
+        <div class="diagram-title gn">AFTER RESIZE &mdash; 32 BUCKETS (entries redistributed)</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;">
+            <div class="c c-xs gn">&#9679;</div><div class="c c-xs dim">&nbsp;</div><div class="c c-xs dim">&nbsp;</div><div class="c c-xs gn">&#9679;</div>
+            <div class="c c-xs dim">&nbsp;</div><div class="c c-xs gn">&#9679;</div><div class="c c-xs dim">&nbsp;</div><div class="c c-xs dim">&nbsp;</div>
+            <div class="c c-xs dim">&nbsp;</div><div class="c c-xs gn">&#9679;</div><div class="c c-xs dim">&nbsp;</div><div class="c c-xs gn">&#9679;</div>
+            <div class="c c-xs dim">&nbsp;</div><div class="c c-xs dim">&nbsp;</div><div class="c c-xs gn">&#9679;</div><div class="c c-xs dim">&nbsp;</div>
+            <div class="c c-xs dim">&nbsp;</div><div class="c c-xs gn">&#9679;</div><div class="c c-xs gn">&#9679;</div><div class="c c-xs dim">&nbsp;</div>
+            <div class="c c-xs dim">&nbsp;</div><div class="c c-xs dim">&nbsp;</div><div class="c c-xs gn">&#9679;</div><div class="c c-xs dim">&nbsp;</div>
+            <div class="c c-xs dim">&nbsp;</div><div class="c c-xs gn">&#9679;</div><div class="c c-xs dim">&nbsp;</div><div class="c c-xs gn">&#9679;</div>
+            <div class="c c-xs dim">&nbsp;</div><div class="c c-xs dim">&nbsp;</div><div class="c c-xs gn">&#9679;</div><div class="c c-xs dim">&nbsp;</div>
+        </div>
+        <div class="arr-label" style="color:#3fb950;margin-top:8px;">12/32 = 37.5% &mdash; more space, fewer collisions!</div>
+    </div>
+
+    <div class="callout yw">
+        <div class="callout-icon">&#128200;</div>
+        <div class="callout-body">
+            <div class="callout-title yw">Resize Sequence</div>
+            <div class="callout-text">
+                <span class="cy">16</span> &rarr; <span class="cy">32</span> &rarr; <span class="cy">64</span> &rarr; <span class="cy">128</span> &rarr; <span class="cy">256</span> &rarr; ... (always power of 2)<br>
+                Thresholds: <span class="yw">12</span> &rarr; <span class="yw">24</span> &rarr; <span class="yw">48</span> &rarr; <span class="yw">96</span> &rarr; <span class="yw">192</span> &rarr; ...
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================== -->
+<!--  SECTION 8: HASHCODE &amp; EQUALS CONTRACT     -->
+<!-- ============================================== -->
+<div class="sec th-pu">
+    <div class="sec-h">
+        <div class="sec-n">8</div>
+        <div>
+            <div class="sec-t">hashCode() &amp; equals() Contract</div>
+            <div class="sec-sub">The most critical concept &mdash; break this and your HashMap silently loses data</div>
+        </div>
+    </div>
+
+    <!-- The 3 Rules -->
+    <div class="diagram" style="border:2px solid rgba(163,113,247,0.3);">
+        <div class="diagram-title pu">THE 3 GOLDEN RULES</div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <div class="c c-sm gn hi" style="width:38px;font-size:16px;">1</div>
+                <div class="step-text" style="font-size:14px;">If <span class="gn">a.equals(b) == true</span> &rarr; a.hashCode() <b>MUST ==</b> b.hashCode()</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;">
+                <div class="c c-sm yw hi" style="width:38px;font-size:16px;">2</div>
+                <div class="step-text" style="font-size:14px;">If <span class="yw">a.hashCode() == b.hashCode()</span> &rarr; a.equals(b) <b>MAY</b> be true or false</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;">
+                <div class="c c-sm rd hi" style="width:38px;font-size:16px;">3</div>
+                <div class="step-text" style="font-size:14px;">If you <span class="rd">override equals()</span> &rarr; you <b>MUST</b> override hashCode()</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="analogy">
+        <div class="analogy-icon">&#127968;</div>
+        <div class="analogy-text">
+            <b>Analogy:</b> <span class="cy">hashCode()</span> = which <b>street</b> you live on. <span class="pu">equals()</span> = which <b>house</b> on that street. Without correct hashCode, HashMap looks on the <span class="rd">wrong street</span>. Without correct equals, it knocks on the <span class="rd">wrong door</span>.
+        </div>
+    </div>
+
+    <!-- BROKEN example -->
+    <div style="font-size:15px;font-weight:900;color:#ff6b6b;margin-top:24px;margin-bottom:8px;">&#10060; BROKEN: Override equals() but NOT hashCode()</div>
+
+    <div class="code-block rd-border"><span class="kw">class</span> <span class="fn">Employee</span> {
+    <span class="kw">int</span> id; String name;
+
+    <span class="an">@Override</span>
+    <span class="kw">public boolean</span> <span class="fn">equals</span>(Object o) {
+        Employee e = (Employee) o;
+        <span class="kw">return</span> <span class="kw">this</span>.id == e.id;  <span class="cm">// compare by id</span>
+    }
+    <span class="cm">// hashCode() NOT overridden &mdash; uses memory address!</span>
+}</div>
+
+    <div class="diagram">
+        <div class="diagram-title rd">WHAT GOES WRONG</div>
+        <div class="steps" style="margin-top:0;">
+            <div class="step">
+                <div class="step-num rd">1</div>
+                <div class="step-body">
+                    <div class="step-text">
+                        <b>e1</b> = new Employee(1, "Amaan") &rarr; hashCode = <span class="cy">12345</span> (memory)<br>
+                        <b>e2</b> = new Employee(1, "Amaan") &rarr; hashCode = <span class="pu">67890</span> (different memory!)
+                    </div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num rd">2</div>
+                <div class="step-body">
+                    <div class="step-text">
+                        map.put(<b>e1</b>, "Developer") &rarr; hash(12345) &rarr; goes to <span class="cy">bucket 5</span>
+                    </div>
+                    <div style="margin-top:6px;"><div class="bucket-row"><div class="bucket-idx" style="background:rgba(0,212,255,0.15);color:#00d4ff;">5</div><div class="bucket-content"><div class="node-box cy">e1 : "Developer"</div></div></div></div>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num rd">3</div>
+                <div class="step-body">
+                    <div class="step-text">
+                        map.get(<b>e2</b>) &rarr; hash(67890) &rarr; goes to <span class="pu">bucket 2</span> &rarr; <span class="rd">WRONG BUCKET!</span>
+                    </div>
+                    <div style="margin-top:6px;"><div class="bucket-row"><div class="bucket-idx" style="background:rgba(163,113,247,0.15);color:#a371f7;">2</div><div class="bucket-content"><span class="null-label">null &mdash; nothing here!</span></div></div></div>
+                    <div class="result-tag rd">Returns NULL! Data lost forever!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CORRECT example -->
+    <div style="font-size:15px;font-weight:900;color:#3fb950;margin-top:24px;margin-bottom:8px;">&#9989; CORRECT: Override BOTH equals() AND hashCode()</div>
+
+    <div class="code-block gn-border"><span class="kw">class</span> <span class="fn">Employee</span> {
+    <span class="kw">int</span> id; String name;
+
+    <span class="an">@Override</span>
+    <span class="kw">public boolean</span> <span class="fn">equals</span>(Object o) {
+        <span class="kw">if</span> (<span class="kw">this</span> == o) <span class="kw">return true</span>;
+        <span class="kw">if</span> (o == <span class="kw">null</span> || getClass() != o.getClass()) <span class="kw">return false</span>;
+        Employee e = (Employee) o;
+        <span class="kw">return</span> id == e.id &amp;&amp; Objects.<span class="fn">equals</span>(name, e.name);
+    }
+
+    <span class="an">@Override</span>
+    <span class="kw">public int</span> <span class="fn">hashCode</span>() {
+        <span class="kw">return</span> Objects.<span class="fn">hash</span>(id, name); <span class="cm">// SAME fields as equals!</span>
+    }
+}</div>
+
+    <div class="callout gn">
+        <div class="callout-icon">&#9989;</div>
+        <div class="callout-body">
+            <div class="callout-title gn">Now it works!</div>
+            <div class="callout-text">
+                e1.hashCode() == e2.hashCode() &rarr; <span class="gn">same bucket</span> &rarr; e1.equals(e2) &rarr; <span class="gn">true</span> &rarr; <b>returns "Developer"</b>. Use the <b>same fields</b> in both methods. Always.
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================== -->
+<!--  SECTION 9: HASHMAP MAGIC NUMBERS CHEAT SHEET  -->
+<!-- ============================================== -->
+<div class="sec th-bl">
+    <div class="sec-h">
+        <div class="sec-n">9</div>
+        <div>
+            <div class="sec-t">HashMap Magic Numbers</div>
+            <div class="sec-sub">All the constants you need to know for interviews</div>
+        </div>
+    </div>
+
+    <table class="cmp-table">
+        <tr><th style="width:260px;">Constant</th><th>Value</th><th>Why</th></tr>
+        <tr><td><b>DEFAULT_INITIAL_CAPACITY</b></td><td><span class="cy">16</span></td><td>Power of 2 for fast indexing</td></tr>
+        <tr><td><b>DEFAULT_LOAD_FACTOR</b></td><td><span class="gn">0.75</span></td><td>Balance between space and time</td></tr>
+        <tr><td><b>TREEIFY_THRESHOLD</b></td><td><span class="rd">8</span></td><td>Linked list &rarr; tree at 8 nodes</td></tr>
+        <tr><td><b>UNTREEIFY_THRESHOLD</b></td><td><span class="yw">6</span></td><td>Tree &rarr; linked list at 6 nodes</td></tr>
+        <tr><td><b>MIN_TREEIFY_CAPACITY</b></td><td><span class="pu">64</span></td><td>Min table size before treeification</td></tr>
+        <tr><td><b>MAXIMUM_CAPACITY</b></td><td><span class="cy">2<sup>30</sup></span></td><td>Largest allowed table size</td></tr>
+    </table>
+</div>
+
+
+<!-- ============================================== -->
+<!-- ============================================== -->
+<!--        PART 2: CONCURRENT HASHMAP              -->
+<!-- ============================================== -->
+<!-- ============================================== -->
+
+<div class="sec" style="padding:34px 42px 12px;border-bottom:1px solid rgba(255,255,255,0.06);">
+    <div style="text-align:center;">
+        <div style="font-size:12px;font-weight:900;letter-spacing:2px;color:#ffa500;margin-bottom:8px;">PART 2</div>
+        <h2 style="font-size:36px;font-weight:900;"><span class="grad">ConcurrentHashMap</span></h2>
+        <p style="font-size:14px;font-weight:700;color:#666;margin-top:6px;">Thread-safe HashMap &mdash; how it achieves high concurrency without locking the entire map</p>
+    </div>
+</div>
+
+<!-- ============================================== -->
+<!--  SECTION 10: THE PROBLEM                       -->
+<!-- ============================================== -->
+<div class="sec th-rd">
+    <div class="sec-h">
+        <div class="sec-n">10</div>
+        <div>
+            <div class="sec-t">Why HashMap Fails in Multi-Threading</div>
+            <div class="sec-sub">Race conditions silently corrupt your data</div>
+        </div>
+    </div>
+
+    <div class="diagram">
+        <div class="diagram-title rd">RACE CONDITION: TWO THREADS, SAME BUCKET</div>
+        <div style="display:grid;grid-template-columns:1fr 40px 1fr;gap:0;align-items:start;">
+            <!-- Thread 1 -->
+            <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
+                <div class="tag rd">THREAD 1</div>
+                <div class="flow-box cy" style="font-size:11px;padding:8px 14px;">put("X", 10)</div>
+                <div class="flow-arrow">&#8595;</div>
+                <div class="flow-box gn" style="font-size:11px;padding:8px 14px;">index = 5</div>
+                <div class="flow-arrow">&#8595;</div>
+                <div class="flow-box yw" style="font-size:11px;padding:8px 14px;">Read bucket[5] = null</div>
+                <div class="flow-arrow">&#8595;</div>
+                <div class="flow-box gn" style="font-size:11px;padding:8px 14px;">Write X to bucket[5]</div>
+            </div>
+            <!-- Middle -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:40px;">
+                <div style="font-size:10px;font-weight:900;color:#555;writing-mode:vertical-lr;">PARALLEL</div>
+            </div>
+            <!-- Thread 2 -->
+            <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
+                <div class="tag pu">THREAD 2</div>
+                <div class="flow-box cy" style="font-size:11px;padding:8px 14px;">put("Y", 20)</div>
+                <div class="flow-arrow">&#8595;</div>
+                <div class="flow-box gn" style="font-size:11px;padding:8px 14px;">index = 5</div>
+                <div class="flow-arrow">&#8595;</div>
+                <div class="flow-box yw" style="font-size:11px;padding:8px 14px;">Read bucket[5] = null</div>
+                <div class="flow-arrow">&#8595;</div>
+                <div class="flow-box rd" style="font-size:11px;padding:8px 14px;">Write Y to bucket[5]<br><b>OVERWRITES X!</b></div>
+            </div>
+        </div>
+        <div class="arr-label" style="color:#ff6b6b;margin-top:12px;font-size:13px;">Both threads saw null &rarr; both wrote &rarr; "X" is silently LOST forever</div>
+    </div>
+</div>
+
+
+<!-- ============================================== -->
+<!--  SECTION 11: SOLUTIONS COMPARISON              -->
+<!-- ============================================== -->
+<div class="sec th-or">
+    <div class="sec-h">
+        <div class="sec-n">11</div>
+        <div>
+            <div class="sec-t">Three Solutions &mdash; Why ConcurrentHashMap Wins</div>
+            <div class="sec-sub">Hashtable vs synchronizedMap vs ConcurrentHashMap</div>
+        </div>
+    </div>
+
+    <div class="why-grid" style="grid-template-columns:1fr 1fr 1fr;gap:12px;">
+        <div class="why-card rd-card">
+            <div class="why-label rd">HASHTABLE</div>
+            <div class="why-title" style="font-size:16px;">Single Big Lock</div>
+            <div class="why-desc">
+                Locks the <span class="rd">entire map</span> for every operation. Only <b>1 thread</b> at a time. Very slow.
+            </div>
+        </div>
+        <div class="why-card yw-card">
+            <div class="why-label yw">synchronizedMap</div>
+            <div class="why-title" style="font-size:16px;">Wrapper Lock</div>
+            <div class="why-desc">
+                Same as Hashtable &mdash; wraps HashMap with a <span class="yw">single mutex</span>. Still only <b>1 thread</b>.
+            </div>
+        </div>
+        <div class="why-card gn-card">
+            <div class="why-label gn">ConcurrentHashMap</div>
+            <div class="why-title" style="font-size:16px;">Per-Bucket Lock</div>
+            <div class="why-desc">
+                Locks only the <span class="gn">specific bucket</span> being modified. <b>N threads</b> can work on N buckets simultaneously!
+            </div>
+        </div>
+    </div>
+
+    <div class="diagram mt">
+        <div class="diagram-title or">VISUAL: WHY PER-BUCKET LOCKING IS FASTER</div>
+
+        <!-- Hashtable -->
+        <div style="margin-bottom:18px;">
+            <div style="font-size:12px;font-weight:900;color:#ff6b6b;margin-bottom:8px;">Hashtable / synchronizedMap &mdash; ONE lock for everything</div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                <div class="c c-sm rd">&#128274;</div><div class="c c-sm rd">&#128274;</div><div class="c c-sm rd">&#128274;</div><div class="c c-sm rd">&#128274;</div>
+                <div class="c c-sm rd">&#128274;</div><div class="c c-sm rd">&#128274;</div><div class="c c-sm rd">&#128274;</div><div class="c c-sm rd">&#128274;</div>
+            </div>
+            <div class="arr-label" style="color:#ff6b6b;">Thread 1 writes to bucket 0 &rarr; ALL other threads BLOCKED</div>
+        </div>
+
+        <!-- ConcurrentHashMap -->
+        <div>
+            <div style="font-size:12px;font-weight:900;color:#3fb950;margin-bottom:8px;">ConcurrentHashMap &mdash; Lock ONLY the bucket you need</div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                <div class="c c-sm rd hi">&#128274;</div><div class="c c-sm gn hi">&#128275;</div><div class="c c-sm rd hi">&#128274;</div><div class="c c-sm gn hi">&#128275;</div>
+                <div class="c c-sm gn hi">&#128275;</div><div class="c c-sm rd hi">&#128274;</div><div class="c c-sm gn hi">&#128275;</div><div class="c c-sm gn hi">&#128275;</div>
+            </div>
+            <div class="arr-label" style="color:#3fb950;">3 threads writing to 3 different buckets &mdash; ALL work simultaneously!</div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================== -->
+<!--  SECTION 12: CHM INTERNAL STRUCTURE            -->
+<!-- ============================================== -->
+<div class="sec th-cy">
+    <div class="sec-h">
+        <div class="sec-n">12</div>
+        <div>
+            <div class="sec-t">ConcurrentHashMap Internal Structure (Java 8+)</div>
+            <div class="sec-sub">volatile Node array + CAS + synchronized per bucket head</div>
+        </div>
+    </div>
+
+    <div class="code-block cy-border"><span class="kw">class</span> <span class="fn">ConcurrentHashMap</span>&lt;K,V&gt; {
+
+    <span class="kw">transient volatile</span> Node&lt;K,V&gt;[] <span class="vr">table</span>;   <span class="cm">// volatile = all threads see latest</span>
+
+    <span class="kw">static class</span> <span class="fn">Node</span>&lt;K,V&gt; {
+        <span class="kw">final int</span>        <span class="vr">hash</span>;
+        <span class="kw">final</span> K          <span class="vr">key</span>;
+        <span class="kw">volatile</span> V       <span class="vr">val</span>;    <span class="cm">// volatile for read visibility</span>
+        <span class="kw">volatile</span> Node    <span class="vr">next</span>;   <span class="cm">// volatile for read visibility</span>
+    }
+}</div>
+
+    <div class="why-grid">
+        <div class="why-card cy-card">
+            <div class="why-label cy">CAS (COMPARE-AND-SWAP)</div>
+            <div class="why-title">Lock-Free Writes</div>
+            <div class="why-desc">
+                An atomic CPU instruction: <b>"Set value to X only if current value is still Y"</b>. If another thread changed it, CAS <span class="rd">fails</span> and the thread <span class="cy">retries</span>. Used for <b>empty bucket inserts</b> &mdash; no lock needed!
+            </div>
+        </div>
+        <div class="why-card gn-card">
+            <div class="why-label gn">VOLATILE</div>
+            <div class="why-title">Lock-Free Reads</div>
+            <div class="why-desc">
+                <b>volatile</b> guarantees that when Thread 1 writes a value, Thread 2 <span class="gn">sees it immediately</span> (no CPU cache staleness). This is why <b>get() needs NO lock</b> at all!
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================== -->
+<!--  SECTION 13: CHM PUT() FLOW                    -->
+<!-- ============================================== -->
+<div class="sec th-gn">
+    <div class="sec-h">
+        <div class="sec-n">13</div>
+        <div>
+            <div class="sec-t">ConcurrentHashMap put() Flow</div>
+            <div class="sec-sub">CAS for empty buckets, synchronized for collisions, cooperative resize</div>
+        </div>
+    </div>
+
+    <div class="diagram" style="border:2px solid rgba(63,185,80,0.2);">
+        <div class="diagram-title gn">COMPLETE PUT() DECISION FLOW</div>
+        <div class="flow">
+            <div class="flow-box gn" style="font-size:15px;"><b>put(key, value)</b></div>
+            <div class="flow-arrow">&#8595;</div>
+            <div class="flow-box rd">key == null || value == null?<br><span style="font-size:11px;">YES &rarr; throw NullPointerException</span></div>
+            <div class="flow-arrow">&#8595; NO</div>
+            <div class="flow-box pu">hash = spread(key.hashCode())</div>
+            <div class="flow-arrow">&#8595;</div>
+            <div class="flow-box yw">Is table[index] empty (null)?</div>
+            <div class="flow-split">
+                <div class="flow-branch">
+                    <div class="flow-label gn">YES</div>
+                    <div class="flow-arrow">&#8595;</div>
+                    <div class="flow-box gn"><b>CAS insert</b><br><span style="font-size:11px;">No lock! Atomic operation.<br>Fail? &rarr; retry the loop.</span></div>
+                </div>
+                <div class="flow-branch" style="max-width:220px;">
+                    <div class="flow-label rd">NO (has nodes)</div>
+                    <div class="flow-arrow">&#8595;</div>
+                    <div class="flow-box yw" style="font-size:11px;padding:8px 14px;">hash == MOVED?<br>(Being resized?)</div>
+                    <div class="flow-split" style="gap:10px;">
+                        <div class="flow-branch">
+                            <div class="flow-label gn" style="font-size:10px;">YES</div>
+                            <div class="flow-arrow" style="font-size:14px;">&#8595;</div>
+                            <div class="flow-box or" style="font-size:11px;padding:6px 10px;">helpTransfer()<br>Help resize!</div>
+                        </div>
+                        <div class="flow-branch">
+                            <div class="flow-label rd" style="font-size:10px;">NO</div>
+                            <div class="flow-arrow" style="font-size:14px;">&#8595;</div>
+                            <div class="flow-box rd" style="font-size:11px;padding:6px 10px;">synchronized(head)<br>Lock THIS bucket only</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Annotated code -->
+    <div style="font-size:14px;font-weight:800;color:#fff;margin-top:20px;margin-bottom:4px;">Annotated put() Code</div>
+    <div class="code-annotated">
+        <div class="ca-line"><div class="ca-code"><span class="kw">if</span> (key == <span class="kw">null</span> || value == <span class="kw">null</span>)</div><div class="ca-note rd">null NOT allowed (unlike HashMap)</div></div>
+        <div class="ca-line"><div class="ca-code">&nbsp;&nbsp;<span class="kw">throw new</span> NullPointerException();</div><div class="ca-note dim"></div></div>
+        <div class="ca-line"><div class="ca-code"><span class="kw">int</span> hash = <span class="fn">spread</span>(key.<span class="fn">hashCode</span>());</div><div class="ca-note cy">same spread as HashMap</div></div>
+        <div class="ca-line"><div class="ca-code"><span class="kw">if</span> (table[i] == <span class="kw">null</span>)</div><div class="ca-note gn">bucket empty?</div></div>
+        <div class="ca-line"><div class="ca-code">&nbsp;&nbsp;<span class="fn">casTabAt</span>(tab, i, <span class="kw">null</span>, newNode);</div><div class="ca-note gn">CAS insert &mdash; NO LOCK!</div></div>
+        <div class="ca-line"><div class="ca-code"><span class="kw">else if</span> (f.hash == <span class="fn">MOVED</span>)</div><div class="ca-note yw">resize in progress?</div></div>
+        <div class="ca-line"><div class="ca-code">&nbsp;&nbsp;<span class="fn">helpTransfer</span>(tab, f);</div><div class="ca-note yw">help other threads resize</div></div>
+        <div class="ca-line"><div class="ca-code"><span class="kw">else</span> {</div><div class="ca-note dim"></div></div>
+        <div class="ca-line"><div class="ca-code">&nbsp;&nbsp;<span class="kw">synchronized</span> (f) {</div><div class="ca-note rd">lock ONLY this bucket's head</div></div>
+        <div class="ca-line"><div class="ca-code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">// traverse list, add/update node</span></div><div class="ca-note pu">same as HashMap from here</div></div>
+        <div class="ca-line"><div class="ca-code">&nbsp;&nbsp;}</div><div class="ca-note gn">lock released &mdash; other buckets never blocked</div></div>
+        <div class="ca-line"><div class="ca-code">}</div><div class="ca-note dim"></div></div>
+    </div>
+</div>
+
+
+<!-- ============================================== -->
+<!--  SECTION 14: CHM GET() &mdash; NO LOCK!       -->
+<!-- ============================================== -->
+<div class="sec th-bl">
+    <div class="sec-h">
+        <div class="sec-n">14</div>
+        <div>
+            <div class="sec-t">ConcurrentHashMap get() &mdash; Zero Locking!</div>
+            <div class="sec-sub">Reads are completely lock-free thanks to volatile</div>
+        </div>
+    </div>
+
+    <div class="diagram" style="border:2px solid rgba(88,166,255,0.2);">
+        <div class="diagram-title bl">HOW VOLATILE MAKES GET() LOCK-FREE</div>
+        <div style="display:grid;grid-template-columns:1fr 80px 1fr;gap:0;align-items:center;">
+            <div style="text-align:center;">
+                <div class="tag rd" style="margin-bottom:8px;">WRITER THREAD</div>
+                <div class="flow-box cy" style="font-size:12px;padding:10px 16px;">put("A", 10)<br>writes to <b>MAIN MEMORY</b></div>
+            </div>
+            <div style="text-align:center;">
+                <div style="font-size:28px;color:#58a6ff;font-weight:900;">&rarr;</div>
+                <div style="font-size:10px;font-weight:900;color:#58a6ff;letter-spacing:0.5px;">volatile<br>guarantees<br>visibility</div>
+            </div>
+            <div style="text-align:center;">
+                <div class="tag gn" style="margin-bottom:8px;">READER THREAD</div>
+                <div class="flow-box gn" style="font-size:12px;padding:10px 16px;">get("A")<br>reads from <b>MAIN MEMORY</b></div>
+            </div>
+        </div>
+        <div class="arr-label" style="color:#58a6ff;margin-top:12px;">No lock needed! volatile ensures reader always sees the latest write.</div>
+    </div>
+
+    <div class="code-block bl-border"><span class="cm">// get() &mdash; ENTIRE method is lock-free!</span>
+<span class="kw">public</span> V <span class="fn">get</span>(Object key) {
+    <span class="kw">int</span> h = <span class="fn">spread</span>(key.<span class="fn">hashCode</span>());
+    Node&lt;K,V&gt; e = <span class="fn">tabAt</span>(tab, (n-<span class="num">1</span>) &amp; h);  <span class="cm">// volatile read of bucket</span>
+
+    <span class="kw">while</span> (e != <span class="kw">null</span>) {
+        <span class="kw">if</span> (e.hash == h &amp;&amp; key.<span class="fn">equals</span>(e.key))
+            <span class="kw">return</span> e.<span class="vr">val</span>;    <span class="cm">// volatile read of value</span>
+        e = e.<span class="vr">next</span>;          <span class="cm">// volatile read of next pointer</span>
+    }
+    <span class="kw">return null</span>;
+}</div>
+
+    <div class="callout yw">
+        <div class="callout-icon">&#9889;</div>
+        <div class="callout-body">
+            <div class="callout-title yw">Key Insight</div>
+            <div class="callout-text">
+                <b>Unlimited readers</b> can call get() at the same time with <span class="gn">zero contention</span>. Writers only block other writers on the <b>same bucket</b>. Readers are <span class="cy">never blocked</span> by writers.
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================== -->
+<!--  SECTION 15: COOPERATIVE RESIZE                -->
+<!-- ============================================== -->
+<div class="sec th-or">
+    <div class="sec-h">
+        <div class="sec-n">15</div>
+        <div>
+            <div class="sec-t">Cooperative Resizing</div>
+            <div class="sec-sub">All threads help transfer buckets &mdash; resize finishes faster</div>
+        </div>
+    </div>
+
+    <div class="why-grid">
+        <div class="why-card rd-card">
+            <div class="why-label rd">HASHMAP RESIZE</div>
+            <div class="why-title">One Thread Does Everything</div>
+            <div class="why-desc">
+                Thread 1 starts resize. All other threads <span class="rd">wait</span>. Thread 1 copies ALL entries alone. <b>Slow.</b>
+            </div>
+        </div>
+        <div class="why-card gn-card">
+            <div class="why-label gn">CONCURRENT RESIZE</div>
+            <div class="why-title">Everyone Helps!</div>
+            <div class="why-desc">
+                Thread 1 starts. Threads 2, 3, 4 see <span class="or">MOVED</span> marker &rarr; <span class="gn">help transfer</span> different buckets. <b>N&times; faster!</b>
+            </div>
+        </div>
+    </div>
+
+    <div class="diagram mt">
+        <div class="diagram-title or">FORWARDING NODE &amp; COOPERATIVE TRANSFER</div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+            <div>
+                <div style="font-size:12px;font-weight:900;color:#888;margin-bottom:6px;">OLD TABLE (being transferred):</div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                    <div class="c c-sm or hi" style="position:relative;"><span style="font-size:10px;">FWD</span><span style="position:absolute;top:-14px;font-size:8px;color:#3fb950;font-weight:900;">done</span></div>
+                    <div class="c c-sm or hi" style="position:relative;"><span style="font-size:10px;">FWD</span><span style="position:absolute;top:-14px;font-size:8px;color:#3fb950;font-weight:900;">done</span></div>
+                    <div class="c c-sm cy" style="position:relative;"><span style="font-size:10px;">T1</span><span style="position:absolute;top:-14px;font-size:8px;color:#00d4ff;font-weight:900;">moving</span></div>
+                    <div class="c c-sm pu" style="position:relative;"><span style="font-size:10px;">T2</span><span style="position:absolute;top:-14px;font-size:8px;color:#a371f7;font-weight:900;">moving</span></div>
+                    <div class="c c-sm gn" style="position:relative;"><span style="font-size:10px;">T3</span><span style="position:absolute;top:-14px;font-size:8px;color:#3fb950;font-weight:900;">moving</span></div>
+                    <div class="c c-sm dim"><span style="font-size:10px;">...</span></div>
+                    <div class="c c-sm dim"><span style="font-size:10px;">...</span></div>
+                    <div class="c c-sm dim"><span style="font-size:10px;">...</span></div>
+                </div>
+            </div>
+            <div style="text-align:center;font-size:22px;color:#ffa500;font-weight:900;">&#8595; transferring to &#8595;</div>
+            <div>
+                <div style="font-size:12px;font-weight:900;color:#888;margin-bottom:6px;">NEW TABLE (2&times; size, being filled):</div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                    <div class="c c-xs gn hi">&#9679;</div><div class="c c-xs dim">&nbsp;</div><div class="c c-xs gn hi">&#9679;</div><div class="c c-xs dim">&nbsp;</div>
+                    <div class="c c-xs dim">&nbsp;</div><div class="c c-xs dim">&nbsp;</div><div class="c c-xs dim">&nbsp;</div><div class="c c-xs dim">&nbsp;</div>
+                    <div class="c c-xs dim">&nbsp;</div><div class="c c-xs dim">&nbsp;</div><div class="c c-xs dim">&nbsp;</div><div class="c c-xs dim">&nbsp;</div>
+                    <div class="c c-xs dim">&nbsp;</div><div class="c c-xs dim">&nbsp;</div><div class="c c-xs dim">&nbsp;</div><div class="c c-xs dim">&nbsp;</div>
+                </div>
+            </div>
+        </div>
+        <div class="arr-label mt" style="color:#ffa500;">FWD = ForwardingNode. Any read on a transferred bucket is forwarded to the new table automatically.</div>
+    </div>
+
+    <div class="callout yw">
+        <div class="callout-icon">&#128736;</div>
+        <div class="callout-body">
+            <div class="callout-title yw">sizeCtl &mdash; The Control Variable</div>
+            <div class="callout-text">
+                <b>-1</b> = table being initialized &nbsp;&nbsp; <b>-(1+N)</b> = N threads helping resize<br>
+                <b>0</b> = table not created yet &nbsp;&nbsp; <b>&gt;0</b> = next resize threshold
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================== -->
+<!--  SECTION 16: DISTRIBUTED COUNTING              -->
+<!-- ============================================== -->
+<div class="sec th-pu">
+    <div class="sec-h">
+        <div class="sec-n">16</div>
+        <div>
+            <div class="sec-t">Distributed Counting (size())</div>
+            <div class="sec-sub">No single counter bottleneck &mdash; uses LongAdder-style cells</div>
+        </div>
+    </div>
+
+    <div class="diagram">
+        <div class="diagram-title pu">HOW SIZE IS TRACKED WITHOUT CONTENTION</div>
+        <div style="display:grid;grid-template-columns:1fr 30px 1fr;gap:10px;align-items:center;">
+            <div>
+                <div style="font-size:12px;font-weight:900;color:#ff6b6b;margin-bottom:8px;">HashMap: Single counter</div>
+                <div style="display:flex;justify-content:center;">
+                    <div class="c c-lg rd hi" style="width:120px;border-radius:12px;font-size:14px;">size = 42</div>
+                </div>
+                <div class="arr-label" style="color:#ff6b6b;">Every thread fights over ONE variable</div>
+            </div>
+            <div style="text-align:center;font-size:12px;font-weight:900;color:#555;">vs</div>
+            <div>
+                <div style="font-size:12px;font-weight:900;color:#3fb950;margin-bottom:8px;">ConcurrentHashMap: Distributed</div>
+                <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;">
+                    <div class="c c-sm gn hi" style="width:70px;font-size:11px;border-radius:8px;">base=26</div>
+                    <div class="c c-sm cy" style="width:50px;font-size:11px;border-radius:8px;">+5</div>
+                    <div class="c c-sm pu" style="width:50px;font-size:11px;border-radius:8px;">+8</div>
+                    <div class="c c-sm yw" style="width:50px;font-size:11px;border-radius:8px;">+3</div>
+                </div>
+                <div class="arr-label" style="color:#3fb950;">Each thread updates its OWN cell = 42 total</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="code-block pu-border"><span class="cm">// Distributed counting &mdash; no contention</span>
+<span class="kw">long</span> <span class="fn">sumCount</span>() {
+    CounterCell[] cs = counterCells;
+    <span class="kw">long</span> sum = baseCount;    <span class="cm">// start with base</span>
+    <span class="kw">if</span> (cs != <span class="kw">null</span>)
+        <span class="kw">for</span> (CounterCell c : cs)
+            <span class="kw">if</span> (c != <span class="kw">null</span>)
+                sum += c.value;  <span class="cm">// add each thread's cell</span>
+    <span class="kw">return</span> sum;
+}</div>
+</div>
+
+
+<!-- ============================================== -->
+<!--  SECTION 17: WHY NO NULL                       -->
+<!-- ============================================== -->
+<div class="sec th-rd">
+    <div class="sec-h">
+        <div class="sec-n">17</div>
+        <div>
+            <div class="sec-t">Why ConcurrentHashMap Forbids null</div>
+            <div class="sec-sub">The ambiguity problem that doesn't exist in single-threaded HashMap</div>
+        </div>
+    </div>
+
+    <div class="diagram" style="border:2px solid rgba(255,107,107,0.2);">
+        <div class="diagram-title rd">THE NULL AMBIGUITY</div>
+        <div style="display:grid;grid-template-columns:1fr 40px 1fr;gap:0;align-items:center;">
+            <div style="text-align:center;">
+                <div class="tag cy" style="margin-bottom:8px;">THREAD 1</div>
+                <div class="flow-box cy" style="font-size:11px;padding:8px;">val = get("X")<br><b>returns null</b></div>
+                <div style="font-size:10px;font-weight:800;color:#888;margin-top:6px;"><span style="font-size:16px;">&#129300;</span><br>Does "X" exist<br>with null value?<br>Or does "X" not exist?</div>
+            </div>
+            <div style="text-align:center;">
+                <div style="font-size:10px;font-weight:900;color:#feca57;writing-mode:vertical-lr;">MEANWHILE</div>
+            </div>
+            <div style="text-align:center;">
+                <div class="tag pu" style="margin-bottom:8px;">THREAD 2</div>
+                <div class="flow-box pu" style="font-size:11px;padding:8px;">put("X", 100)<br><b>adds the key!</b></div>
+                <div style="font-size:10px;font-weight:800;color:#888;margin-top:6px;"><span style="font-size:16px;">&#128165;</span><br>Now containsKey("X")<br>returns true!<br>Contradicts get()!</div>
+            </div>
+        </div>
+        <div class="arr-label" style="color:#ff6b6b;margin-top:14px;font-size:13px;">Between get() and containsKey(), another thread can change the map.<br>This ambiguity is IMPOSSIBLE to resolve &rarr; so null is banned entirely.</div>
+    </div>
+</div>
+
+
+<!-- ============================================== -->
+<!--  SECTION 18: FINAL COMPARISON TABLE            -->
+<!-- ============================================== -->
+<div class="sec th-yw">
+    <div class="sec-h">
+        <div class="sec-n">18</div>
+        <div>
+            <div class="sec-t">Complete Comparison Table</div>
+            <div class="sec-sub">HashMap vs Hashtable vs ConcurrentHashMap &mdash; all key differences</div>
+        </div>
+    </div>
+
+    <table class="cmp-table">
+        <tr>
+            <th style="width:180px;">Feature</th>
+            <th><span style="color:#00d4ff;">HashMap</span></th>
+            <th><span style="color:#ff6b6b;">Hashtable</span></th>
+            <th><span style="color:#3fb950;">ConcurrentHashMap</span></th>
+        </tr>
+        <tr><td><b>Thread-safe</b></td><td><span class="rd">NO</span></td><td><span class="gn">YES</span></td><td><span class="gn">YES</span></td></tr>
+        <tr><td><b>Lock strategy</b></td><td>None</td><td>Entire map</td><td><span class="gn">Per-bucket</span></td></tr>
+        <tr><td><b>Null keys</b></td><td><span class="cy">1 allowed</span></td><td><span class="rd">NOT allowed</span></td><td><span class="rd">NOT allowed</span></td></tr>
+        <tr><td><b>Null values</b></td><td><span class="cy">Allowed</span></td><td><span class="rd">NOT allowed</span></td><td><span class="rd">NOT allowed</span></td></tr>
+        <tr><td><b>Read locking</b></td><td>None</td><td>Full lock</td><td><span class="gn">NO lock (volatile)</span></td></tr>
+        <tr><td><b>Write locking</b></td><td>None</td><td>Full lock</td><td><span class="gn">Bucket-level</span></td></tr>
+        <tr><td><b>Concurrent readers</b></td><td>Unsafe</td><td>1 at a time</td><td><span class="gn">Unlimited</span></td></tr>
+        <tr><td><b>Concurrent resize</b></td><td>NO</td><td>NO</td><td><span class="gn">YES (cooperative)</span></td></tr>
+        <tr><td><b>Iterator</b></td><td>Fail-fast</td><td>Fail-fast</td><td><span class="yw">Weakly consistent</span></td></tr>
+        <tr><td><b>Performance (MT)</b></td><td>Broken</td><td>Slow</td><td><span class="gn">FAST</span></td></tr>
+        <tr><td><b>Since</b></td><td>Java 1.2</td><td>Java 1.0</td><td>Java 1.5</td></tr>
+    </table>
+</div>
+
+
+<!-- ============================================== -->
+<!--  SECTION 19: INTERVIEW CHEAT SHEET             -->
+<!-- ============================================== -->
+<div class="sec th-pk">
+    <div class="sec-h">
+        <div class="sec-n">19</div>
+        <div>
+            <div class="sec-t">Interview Quick-Fire Cheat Sheet</div>
+            <div class="sec-sub">Answers to the most commonly asked questions in one glance</div>
+        </div>
+    </div>
+
+    <div class="why-grid" style="grid-template-columns:1fr;gap:12px;">
+        <div class="why-card cy-card">
+            <div class="why-label cy">HASHMAP INTERNALS</div>
+            <div class="why-desc" style="font-size:14px;line-height:2;">
+                <b>Structure:</b> Array of Nodes (buckets), default <span class="cy">16</span><br>
+                <b>Hashing:</b> hashCode() &rarr; spread XOR &rarr; <span class="yw">(n-1) &amp; hash</span> = index<br>
+                <b>Collision:</b> Linked List &rarr; Red-Black Tree at <span class="rd">8 nodes</span><br>
+                <b>Resize:</b> When size &gt; capacity &times; <span class="gn">0.75</span>, double the array<br>
+                <b>Null key:</b> Allowed (goes to bucket 0). <b>Null value:</b> Allowed<br>
+                <b>Time:</b> O(1) avg, O(log n) worst (Java 8+). <b>Thread-safe:</b> NO
+            </div>
+        </div>
+        <div class="why-card gn-card">
+            <div class="why-label gn">CONCURRENTHASHMAP INTERNALS</div>
+            <div class="why-desc" style="font-size:14px;line-height:2;">
+                <b>get():</b> <span class="gn">NO lock</span> &mdash; uses volatile reads. Unlimited concurrent readers<br>
+                <b>put() empty bucket:</b> <span class="cy">CAS</span> &mdash; atomic, no lock<br>
+                <b>put() collision:</b> <span class="rd">synchronized(head node)</span> of that bucket only<br>
+                <b>Resize:</b> <span class="or">Cooperative</span> &mdash; all threads help transfer buckets<br>
+                <b>ForwardingNode:</b> Marker (hash=MOVED) redirects reads to new table<br>
+                <b>size():</b> <span class="pu">Distributed counters</span> (baseCount + CounterCells)<br>
+                <b>Null:</b> NOT allowed (ambiguity in concurrent reads)
+            </div>
+        </div>
+        <div class="why-card pu-card">
+            <div class="why-label pu">HASHCODE &amp; EQUALS CONTRACT</div>
+            <div class="why-desc" style="font-size:14px;line-height:2;">
+                <b>Rule 1:</b> equals() true &rarr; hashCode() <span class="gn">MUST be same</span><br>
+                <b>Rule 2:</b> Same hashCode &rarr; equals() <span class="yw">MAY be true or false</span> (collision OK)<br>
+                <b>Rule 3:</b> Override equals() &rarr; <span class="rd">MUST override hashCode()</span><br>
+                <b>Always:</b> Use the <span class="cy">same fields</span> in both methods<br>
+                <b>Break it:</b> Data silently lost in HashMap &mdash; put succeeds, get returns null
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================== -->
+<!--                    FOOTER                      -->
+<!-- ============================================== -->
+<div class="footer">
+    <div class="author">
+        <div class="avatar">AN</div>
+        <div>
+            <div class="author-name">Amaan Nirban</div>
+            <div class="author-tag"><span>Java</span> &bull; DSA &bull; System Design</div>
+        </div>
+    </div>
+    <div class="cta-group">
+        <a class="cta save">&#128278; Save this</a>
+        <a class="cta follow">Follow for more</a>
+    </div>
+</div>
+
+</div><!-- /page -->
+</body>
+</html>
