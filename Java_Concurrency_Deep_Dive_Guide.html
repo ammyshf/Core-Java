@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Java Concurrency Deep Dive — Visual Guide | Amaan Nirban</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box;}
+        html{scroll-behavior:smooth;}
+        body{font-family:'Inter',sans-serif;background:#08090e;color:#e2e8f0;display:flex;flex-direction:column;align-items:center;padding:40px 20px;line-height:1.6;}
+        .page{width:920px;max-width:100%;background:#0f1117;border-radius:24px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);box-shadow:0 0 100px rgba(0,120,255,0.06),0 0 40px rgba(0,0,0,0.5);}
+
+        /* ===== HERO ===== */
+        .hero{padding:56px 52px 44px;text-align:center;position:relative;background:linear-gradient(180deg,rgba(0,180,255,0.06) 0%,transparent 100%);border-bottom:1px solid rgba(255,255,255,0.06);}
+        .hero::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#00d4ff,#a371f7,#ff6bcb,#feca57);border-radius:24px 24px 0 0;}
+        .badge{position:absolute;top:22px;right:22px;background:linear-gradient(135deg,#ff416c,#ff4b2b);color:#fff;padding:8px 18px;border-radius:20px;font-weight:900;font-size:11px;letter-spacing:1.5px;box-shadow:0 4px 24px rgba(255,65,108,0.4);text-transform:uppercase;}
+        .hero h1{font-size:48px;font-weight:900;line-height:1.1;margin-bottom:12px;letter-spacing:-0.5px;}
+        .grad{background:linear-gradient(90deg,#00d4ff,#a371f7,#ff6bcb);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+        .grad-warm{background:linear-gradient(90deg,#ff6b6b,#feca57,#3fb950);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+        .hero p{font-size:16.5px;font-weight:600;color:#8892a8;line-height:1.65;max-width:660px;margin:0 auto;}
+        .hero p b{color:#d1d9e6;font-weight:800;}
+
+        /* ===== TOC ===== */
+        .toc{padding:28px 52px;border-bottom:1px solid rgba(255,255,255,0.06);background:rgba(0,0,0,0.2);}
+        .toc-title{font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:#4a5568;margin-bottom:16px;}
+        .toc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+        .toc-item{display:flex;align-items:center;gap:12px;padding:10px 16px;background:rgba(255,255,255,0.02);border-radius:10px;border:1px solid rgba(255,255,255,0.05);font-size:13px;font-weight:700;color:#8892a8;transition:all 0.2s;}
+        .toc-item:hover{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.1);color:#c0c8d8;}
+        .toc-n{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0;}
+        .toc-n.cy{background:rgba(0,212,255,0.15);color:#00d4ff;} .toc-n.gn{background:rgba(63,185,80,0.15);color:#3fb950;} .toc-n.pu{background:rgba(163,113,247,0.15);color:#a371f7;} .toc-n.rd{background:rgba(255,107,107,0.15);color:#ff6b6b;} .toc-n.yw{background:rgba(254,202,87,0.15);color:#feca57;} .toc-n.bl{background:rgba(88,166,255,0.15);color:#58a6ff;} .toc-n.pk{background:rgba(255,107,203,0.15);color:#ff6bcb;} .toc-n.or{background:rgba(255,165,0,0.15);color:#ffa500;}
+
+        /* ===== SECTIONS ===== */
+        .sec{padding:44px 52px;border-bottom:1px solid rgba(255,255,255,0.05);position:relative;}
+        .sec:last-of-type{border-bottom:none;}
+        .sec-h{display:flex;align-items:center;gap:16px;margin-bottom:28px;}
+        .sec-n{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:19px;flex-shrink:0;}
+        .sec-t{font-size:26px;font-weight:900;letter-spacing:-0.3px;}
+        .sec-sub{font-size:14px;font-weight:600;color:#6b7a94;margin-top:3px;}
+
+        /* Section accent line */
+        .sec::after{content:'';position:absolute;bottom:0;left:52px;right:52px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent);}
+
+        .th-cy .sec-n{background:rgba(0,212,255,0.12);color:#00d4ff;border:2px solid rgba(0,212,255,0.3);box-shadow:0 0 20px rgba(0,212,255,0.1);}
+        .th-cy .sec-t{color:#00d4ff;}
+        .th-gn .sec-n{background:rgba(63,185,80,0.12);color:#3fb950;border:2px solid rgba(63,185,80,0.3);box-shadow:0 0 20px rgba(63,185,80,0.1);}
+        .th-gn .sec-t{color:#3fb950;}
+        .th-pu .sec-n{background:rgba(163,113,247,0.12);color:#a371f7;border:2px solid rgba(163,113,247,0.3);box-shadow:0 0 20px rgba(163,113,247,0.1);}
+        .th-pu .sec-t{color:#a371f7;}
+        .th-rd .sec-n{background:rgba(255,107,107,0.12);color:#ff6b6b;border:2px solid rgba(255,107,107,0.3);box-shadow:0 0 20px rgba(255,107,107,0.1);}
+        .th-rd .sec-t{color:#ff6b6b;}
+        .th-yw .sec-n{background:rgba(254,202,87,0.12);color:#feca57;border:2px solid rgba(254,202,87,0.3);box-shadow:0 0 20px rgba(254,202,87,0.1);}
+        .th-yw .sec-t{color:#feca57;}
+        .th-bl .sec-n{background:rgba(88,166,255,0.12);color:#58a6ff;border:2px solid rgba(88,166,255,0.3);box-shadow:0 0 20px rgba(88,166,255,0.1);}
+        .th-bl .sec-t{color:#58a6ff;}
+        .th-pk .sec-n{background:rgba(255,107,203,0.12);color:#ff6bcb;border:2px solid rgba(255,107,203,0.3);box-shadow:0 0 20px rgba(255,107,203,0.1);}
+        .th-pk .sec-t{color:#ff6bcb;}
+        .th-or .sec-n{background:rgba(255,165,0,0.12);color:#ffa500;border:2px solid rgba(255,165,0,0.3);box-shadow:0 0 20px rgba(255,165,0,0.1);}
+        .th-or .sec-t{color:#ffa500;}
+
+        /* Color helpers */
+        .cy{color:#22d3ee;font-weight:800;} .gn{color:#4ade80;font-weight:800;} .pu{color:#a78bfa;font-weight:800;} .rd{color:#f87171;font-weight:800;} .yw{color:#fbbf24;font-weight:800;} .or{color:#fb923c;font-weight:800;} .pk{color:#f472b6;font-weight:800;} .bl{color:#60a5fa;font-weight:800;} .wh{color:#fff;font-weight:900;}
+
+        /* ===== CARDS ===== */
+        .card-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+        .card-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:16px 0;}
+        .card{border-radius:14px;padding:22px 24px;position:relative;overflow:hidden;transition:transform 0.2s;}
+        .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+        .card.cy-c{background:rgba(0,212,255,0.04);border:1.5px solid rgba(0,212,255,0.12);}
+        .card.cy-c::before{background:linear-gradient(90deg,#00d4ff,#58a6ff);}
+        .card.pu-c{background:rgba(163,113,247,0.04);border:1.5px solid rgba(163,113,247,0.12);}
+        .card.pu-c::before{background:linear-gradient(90deg,#a371f7,#ff6bcb);}
+        .card.gn-c{background:rgba(63,185,80,0.04);border:1.5px solid rgba(63,185,80,0.12);}
+        .card.gn-c::before{background:linear-gradient(90deg,#3fb950,#00d4ff);}
+        .card.rd-c{background:rgba(255,107,107,0.04);border:1.5px solid rgba(255,107,107,0.12);}
+        .card.rd-c::before{background:linear-gradient(90deg,#ff6b6b,#feca57);}
+        .card.yw-c{background:rgba(254,202,87,0.04);border:1.5px solid rgba(254,202,87,0.12);}
+        .card.yw-c::before{background:linear-gradient(90deg,#feca57,#ffa500);}
+        .card.or-c{background:rgba(255,165,0,0.04);border:1.5px solid rgba(255,165,0,0.12);}
+        .card.or-c::before{background:linear-gradient(90deg,#ffa500,#ff6b6b);}
+        .card.pk-c{background:rgba(255,107,203,0.04);border:1.5px solid rgba(255,107,203,0.12);}
+        .card.pk-c::before{background:linear-gradient(90deg,#ff6bcb,#a371f7);}
+        .card.bl-c{background:rgba(88,166,255,0.04);border:1.5px solid rgba(88,166,255,0.12);}
+        .card.bl-c::before{background:linear-gradient(90deg,#58a6ff,#00d4ff);}
+        .card-label{font-size:10.5px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
+        .card-title{font-size:17px;font-weight:900;color:#f0f4f8;margin-bottom:6px;}
+        .card-desc{font-size:13.5px;font-weight:600;color:#8892a8;line-height:1.6;}
+        .card-desc b{color:#e2e8f0;font-weight:800;}
+
+        /* ===== ANALOGY ===== */
+        .analogy{background:linear-gradient(135deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01));border:1.5px solid rgba(255,255,255,0.07);border-radius:14px;padding:20px 24px;margin:18px 0;display:flex;align-items:flex-start;gap:16px;}
+        .analogy-icon{font-size:30px;flex-shrink:0;margin-top:2px;}
+        .analogy-text{font-size:14px;font-weight:600;color:#a0aec0;line-height:1.65;}
+        .analogy-text b{color:#f0f4f8;font-weight:800;}
+
+        /* ===== DIAGRAMS ===== */
+        .diagram{background:rgba(0,0,0,0.3);border-radius:16px;padding:24px 28px;margin:18px 0;border:1px solid rgba(255,255,255,0.05);}
+        .diagram-title{font-size:11px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px;text-align:center;}
+
+        /* Thread boxes */
+        .tbox{display:inline-flex;align-items:center;padding:8px 16px;border-radius:10px;font-size:13px;font-weight:800;}
+        .tbox.cy{background:rgba(0,212,255,0.12);color:#22d3ee;border:2px solid rgba(0,212,255,0.25);}
+        .tbox.gn{background:rgba(63,185,80,0.12);color:#4ade80;border:2px solid rgba(63,185,80,0.25);}
+        .tbox.rd{background:rgba(255,107,107,0.12);color:#f87171;border:2px solid rgba(255,107,107,0.25);}
+        .tbox.pu{background:rgba(163,113,247,0.12);color:#a78bfa;border:2px solid rgba(163,113,247,0.25);}
+        .tbox.yw{background:rgba(254,202,87,0.12);color:#fbbf24;border:2px solid rgba(254,202,87,0.25);}
+        .tbox.or{background:rgba(255,165,0,0.12);color:#fb923c;border:2px solid rgba(255,165,0,0.25);}
+
+        /* ===== CODE BLOCKS (FIXED formatting) ===== */
+        pre.code{background:#0a0c12;border-radius:14px;padding:22px 26px;margin:18px 0;border:1px solid rgba(255,255,255,0.06);border-left:4px solid;font-family:'JetBrains Mono',monospace;font-size:13.5px;line-height:1.85;color:#e2e8f0;overflow-x:auto;white-space:pre;tab-size:4;-moz-tab-size:4;}
+        pre.code.cy-b{border-left-color:#00d4ff;} pre.code.gn-b{border-left-color:#3fb950;} pre.code.pu-b{border-left-color:#a371f7;} pre.code.rd-b{border-left-color:#ff6b6b;} pre.code.yw-b{border-left-color:#feca57;} pre.code.or-b{border-left-color:#ffa500;} pre.code.bl-b{border-left-color:#58a6ff;} pre.code.pk-b{border-left-color:#ff6bcb;}
+        pre.code .kw{color:#ff79c6;font-weight:700;}
+        pre.code .fn{color:#8be9fd;font-weight:600;}
+        pre.code .str{color:#f1fa8c;}
+        pre.code .cm{color:#5c6370;font-style:italic;}
+        pre.code .num{color:#bd93f9;}
+        pre.code .an{color:#50fa7b;font-weight:700;}
+        pre.code .tp{color:#ffb86c;}
+
+        /* Annotated code */
+        .acode{display:flex;flex-direction:column;gap:0;margin:18px 0;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.06);}
+        .acode-row{display:grid;grid-template-columns:1fr 270px;gap:0;min-height:38px;}
+        .acode-src{background:#0a0c12;padding:7px 20px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;color:#e2e8f0;display:flex;align-items:center;line-height:1.6;white-space:pre;}
+        .acode-src .kw{color:#ff79c6;font-weight:700;} .acode-src .fn{color:#8be9fd;font-weight:600;} .acode-src .cm{color:#5c6370;font-style:italic;} .acode-src .num{color:#bd93f9;} .acode-src .str{color:#f1fa8c;} .acode-src .an{color:#50fa7b;font-weight:700;} .acode-src .tp{color:#ffb86c;}
+        .acode-note{padding:7px 16px;font-size:12px;font-weight:700;display:flex;align-items:center;line-height:1.4;border-left:2px solid;}
+        .acode-note.cy{background:rgba(0,212,255,0.05);color:#22d3ee;border-left-color:rgba(0,212,255,0.4);}
+        .acode-note.gn{background:rgba(63,185,80,0.05);color:#4ade80;border-left-color:rgba(63,185,80,0.4);}
+        .acode-note.rd{background:rgba(255,107,107,0.05);color:#f87171;border-left-color:rgba(255,107,107,0.4);}
+        .acode-note.yw{background:rgba(254,202,87,0.05);color:#fbbf24;border-left-color:rgba(254,202,87,0.4);}
+        .acode-note.pu{background:rgba(163,113,247,0.05);color:#a78bfa;border-left-color:rgba(163,113,247,0.4);}
+        .acode-note.dim{background:rgba(255,255,255,0.015);color:#4a5568;border-left-color:rgba(255,255,255,0.06);}
+
+        /* ===== CALLOUT ===== */
+        .callout{border-radius:14px;padding:20px 24px;margin:18px 0;display:flex;align-items:flex-start;gap:16px;}
+        .callout.cy{background:rgba(0,212,255,0.04);border:1.5px solid rgba(0,212,255,0.12);}
+        .callout.pu{background:rgba(163,113,247,0.04);border:1.5px solid rgba(163,113,247,0.12);}
+        .callout.gn{background:rgba(63,185,80,0.04);border:1.5px solid rgba(63,185,80,0.12);}
+        .callout.rd{background:rgba(255,107,107,0.04);border:1.5px solid rgba(255,107,107,0.12);}
+        .callout.yw{background:rgba(254,202,87,0.04);border:1.5px solid rgba(254,202,87,0.12);}
+        .callout-icon{font-size:24px;flex-shrink:0;margin-top:1px;}
+        .callout-body{flex:1;}
+        .co-title{font-size:15px;font-weight:900;margin-bottom:6px;}
+        .co-text{font-size:13.5px;font-weight:600;color:#8892a8;line-height:1.6;}
+        .co-text b{color:#e2e8f0;font-weight:800;}
+
+        /* ===== TABLE ===== */
+        .tbl{width:100%;border-collapse:separate;border-spacing:0;margin:18px 0;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.06);}
+        .tbl th{background:rgba(255,255,255,0.04);padding:14px 18px;font-size:13px;font-weight:900;text-align:left;border-bottom:1px solid rgba(255,255,255,0.06);color:#8892a8;}
+        .tbl td{padding:12px 18px;font-size:13px;font-weight:600;color:#8892a8;border-bottom:1px solid rgba(255,255,255,0.03);background:rgba(0,0,0,0.15);}
+        .tbl tr:last-child td{border-bottom:none;}
+        .tbl td b{color:#e2e8f0;font-weight:800;}
+        .tbl tr:hover td{background:rgba(255,255,255,0.02);}
+
+        /* ===== TIMELINE ===== */
+        .timeline{display:flex;flex-direction:column;gap:4px;margin:16px 0;}
+        .tl-row{display:grid;grid-template-columns:100px 1fr;gap:0;min-height:40px;align-items:center;}
+        .tl-label{font-size:12px;font-weight:800;color:#6b7a94;padding-right:14px;text-align:right;}
+        .tl-bar{display:flex;align-items:center;height:34px;gap:2px;}
+        .tl-seg{height:100%;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:800;letter-spacing:0.3px;white-space:nowrap;padding:0 8px;border-radius:4px;}
+        .tl-seg.run{background:rgba(63,185,80,0.2);color:#4ade80;border:1px solid rgba(63,185,80,0.35);}
+        .tl-seg.lock{background:rgba(0,212,255,0.2);color:#22d3ee;border:1px solid rgba(0,212,255,0.35);}
+        .tl-seg.blocked{background:rgba(255,107,107,0.12);color:#f87171;border:1px solid rgba(255,107,107,0.25);}
+        .tl-seg.wait{background:rgba(254,202,87,0.12);color:#fbbf24;border:1px solid rgba(254,202,87,0.25);}
+        .tl-seg.free{background:rgba(255,255,255,0.02);color:#333;border:1px solid rgba(255,255,255,0.04);}
+
+        /* Steps */
+        .steps{display:flex;flex-direction:column;gap:14px;margin:18px 0;}
+        .step{display:grid;grid-template-columns:38px 1fr;gap:14px;align-items:start;}
+        .step-n{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;flex-shrink:0;}
+        .step-n.cy{background:rgba(0,212,255,0.12);color:#22d3ee;border:2px solid rgba(0,212,255,0.3);}
+        .step-n.gn{background:rgba(63,185,80,0.12);color:#4ade80;border:2px solid rgba(63,185,80,0.3);}
+        .step-n.rd{background:rgba(255,107,107,0.12);color:#f87171;border:2px solid rgba(255,107,107,0.3);}
+        .step-n.pu{background:rgba(163,113,247,0.12);color:#a78bfa;border:2px solid rgba(163,113,247,0.3);}
+        .step-n.yw{background:rgba(254,202,87,0.12);color:#fbbf24;border:2px solid rgba(254,202,87,0.3);}
+        .step-b{background:rgba(255,255,255,0.02);border-radius:12px;padding:16px 20px;border:1px solid rgba(255,255,255,0.05);}
+        .step-t{font-size:14px;font-weight:600;color:#a0aec0;line-height:1.55;}
+        .step-t b{color:#f0f4f8;font-weight:800;}
+
+        /* Section label */
+        .sec-label{font-size:15px;font-weight:900;margin:24px 0 14px;display:flex;align-items:center;gap:10px;}
+        .sec-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.06);}
+
+        /* ===== FOOTER ===== */
+        .footer{padding:28px 52px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,0.06);background:rgba(0,0,0,0.15);}
+        .author{display:flex;align-items:center;gap:16px;}
+        .avatar{width:50px;height:50px;background:linear-gradient(135deg,#00d4ff,#a371f7);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:17px;color:#000;}
+        .author-name{font-size:18px;font-weight:900;color:#f0f4f8;}
+        .author-tag{font-size:12px;font-weight:700;color:#6b7a94;}
+        .author-tag span{color:#4ade80;}
+        .cta-group{display:flex;gap:10px;}
+        .cta{padding:12px 26px;border-radius:22px;font-weight:900;font-size:13px;border:none;cursor:pointer;transition:transform 0.15s;}
+        .cta:hover{transform:translateY(-1px);}
+        .cta.save{background:rgba(63,185,80,0.1);border:2px solid rgba(63,185,80,0.25);color:#4ade80;}
+        .cta.follow{background:linear-gradient(90deg,#00d4ff,#a371f7);color:#000;}
+
+        @media print{body{padding:0;}.page{width:100%;border:none;border-radius:0;box-shadow:none;}*{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+    </style>
+</head>
+<body>
+<div class="page">
+
+<!-- ============================================================ -->
+<!-- HERO                                                          -->
+<!-- ============================================================ -->
+<div class="hero">
+    <div class="badge">Most Asked in Java Interviews</div>
+    <h1>Java <span class="grad">Concurrency</span><br>Deep Dive Guide</h1>
+    <p>
+        From <span class="cy">synchronized</span> misconceptions to <span class="gn">ReentrantLock</span>, <span class="pu">Semaphore</span>,
+        <span class="yw">CountDownLatch</span>, <span class="pk">CyclicBarrier</span>, and <span class="or">StampedLock</span> &mdash;
+        with <b>visual timelines</b>, <b>copy-paste templates</b>, and <b>interview-ready answers</b>.
+    </p>
+</div>
+
+<!-- ============================================================ -->
+<!-- TABLE OF CONTENTS                                             -->
+<!-- ============================================================ -->
+<div class="toc">
+    <div class="toc-title">What&rsquo;s Inside</div>
+    <div class="toc-grid">
+        <div class="toc-item"><div class="toc-n cy">1</div>The Mutex Misconception</div>
+        <div class="toc-item"><div class="toc-n rd">2</div>synchronized Deep Dive</div>
+        <div class="toc-item"><div class="toc-n pu">3</div>wait / notify / notifyAll</div>
+        <div class="toc-item"><div class="toc-n gn">4</div>ReentrantLock</div>
+        <div class="toc-item"><div class="toc-n bl">5</div>ReadWriteLock &amp; StampedLock</div>
+        <div class="toc-item"><div class="toc-n yw">6</div>Semaphore</div>
+        <div class="toc-item"><div class="toc-n or">7</div>CountDownLatch</div>
+        <div class="toc-item"><div class="toc-n pk">8</div>CyclicBarrier</div>
+        <div class="toc-item"><div class="toc-n rd">9</div>Templates &amp; Cheat Sheet</div>
+        <div class="toc-item" style="grid-column:span 3;background:rgba(255,107,107,0.04);border-color:rgba(255,107,107,0.15);"><div class="toc-n" style="background:linear-gradient(135deg,rgba(255,65,108,0.2),rgba(255,75,43,0.2));color:#ff6b6b;border:1.5px solid rgba(255,107,107,0.3);">&#127919;</div><span style="color:#f87171;">Recently Asked Questions in DSA Rounds</span></div>
+    </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 1. THE MUTEX MISCONCEPTION                                    -->
+<!-- ============================================================ -->
+<div class="sec th-cy">
+    <div class="sec-h">
+        <div class="sec-n">1</div>
+        <div><div class="sec-t">The Mutex Misconception</div>
+        <div class="sec-sub">What synchronized ACTUALLY locks &mdash; it&rsquo;s NOT the class, method, or block</div></div>
+    </div>
+
+    <div class="callout rd">
+        <div class="callout-icon">&#9888;&#65039;</div>
+        <div class="callout-body">
+            <div class="co-title rd">Common Wrong Beliefs</div>
+            <div class="co-text">
+                <b>&ldquo;synchronized locks the class&rdquo;</b> &mdash; Wrong.<br>
+                <b>&ldquo;synchronized locks the method&rdquo;</b> &mdash; Wrong.<br>
+                <b>&ldquo;synchronized locks the block&rdquo;</b> &mdash; Wrong.<br><br>
+                <b class="gn">Truth: synchronized locks an OBJECT.</b> The method or block is just the <b>scope</b> &mdash; how long that lock is held.
+            </div>
+        </div>
+    </div>
+
+    <div class="analogy">
+        <div class="analogy-icon">&#128273;</div>
+        <div class="analogy-text">
+            Think of a <b>bathroom key</b>. The <span class="cy">OBJECT</span> is the key itself. The <span class="gn">method/block</span> is how long you hold the key. <b>Method-level</b> = you keep the key from entering the building to leaving. <b>Block-level</b> = you grab the key only when you enter the bathroom and return it immediately after.
+        </div>
+    </div>
+
+    <div class="sec-label cy">What ACTUALLY gets locked in each case</div>
+
+    <div class="card-grid">
+        <div class="card cy-c">
+            <div class="card-label cy">Instance Method</div>
+            <div class="card-title">synchronized void method()</div>
+            <div class="card-desc">Lock = <span class="cy"><b>this</b></span> (the calling instance). Same as <b>synchronized(this) { }</b> wrapping the whole method. Each object has its <b>own lock</b>.</div>
+        </div>
+        <div class="card rd-c">
+            <div class="card-label rd">Static Method</div>
+            <div class="card-title">static synchronized void method()</div>
+            <div class="card-desc">Lock = <span class="rd"><b>ClassName.class</b></span> (the Class object). <b>One lock for the entire JVM</b>, regardless of how many instances exist.</div>
+        </div>
+        <div class="card gn-c">
+            <div class="card-label gn">Block on this</div>
+            <div class="card-title">synchronized(this) { ... }</div>
+            <div class="card-desc">Lock = <span class="gn"><b>this</b></span> instance, but held <b>only for the block</b>. Code before and after runs freely without any lock.</div>
+        </div>
+        <div class="card pu-c">
+            <div class="card-label pu">Block on Custom Object</div>
+            <div class="card-title">synchronized(lockObj) { ... }</div>
+            <div class="card-desc">Lock = <span class="pu"><b>any object you choose</b></span>. Most flexible! Use different lock objects for different resources &rarr; maximum parallelism.</div>
+        </div>
+    </div>
+
+    <div class="callout gn">
+        <div class="callout-icon">&#128161;</div>
+        <div class="callout-body">
+            <div class="co-title gn">The Golden Rule</div>
+            <div class="co-text">
+                Two threads using the <b>SAME object</b> as lock &rarr; only one can enter. Two threads using <b>DIFFERENT objects</b> as lock &rarr; both run simultaneously. <b>The object IS the lock.</b>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 2. SYNCHRONIZED DEEP DIVE                                     -->
+<!-- ============================================================ -->
+<div class="sec th-rd">
+    <div class="sec-h">
+        <div class="sec-n">2</div>
+        <div><div class="sec-t">synchronized Deep Dive</div>
+        <div class="sec-sub">Method-level vs Block-level &mdash; why the difference matters for performance</div></div>
+    </div>
+
+    <div class="sec-label rd">Every Java object has a hidden Monitor (mutex)</div>
+
+    <div class="diagram">
+        <div class="diagram-title cy">Object Monitor Internals</div>
+        <div style="display:flex;justify-content:center;gap:28px;align-items:flex-start;flex-wrap:wrap;">
+            <div style="text-align:center;">
+                <div style="font-size:11px;font-weight:900;color:#4a5568;margin-bottom:10px;letter-spacing:1.5px;">ENTRY SET</div>
+                <div style="background:rgba(255,107,107,0.06);border:2px solid rgba(255,107,107,0.15);border-radius:14px;padding:16px 22px;min-width:160px;">
+                    <div style="font-size:11px;font-weight:700;color:#f87171;margin-bottom:8px;">Threads wanting lock</div>
+                    <div class="tbox rd" style="font-size:12px;margin:5px 0;display:block;text-align:center;">Thread-2</div>
+                    <div class="tbox rd" style="font-size:12px;margin:5px 0;display:block;text-align:center;">Thread-3</div>
+                </div>
+            </div>
+            <div style="text-align:center;">
+                <div style="font-size:11px;font-weight:900;color:#4a5568;margin-bottom:10px;letter-spacing:1.5px;">LOCK OWNER</div>
+                <div style="background:rgba(0,212,255,0.06);border:2px solid rgba(0,212,255,0.15);border-radius:14px;padding:16px 22px;min-width:160px;">
+                    <div style="font-size:11px;font-weight:700;color:#22d3ee;margin-bottom:8px;">Currently holds lock</div>
+                    <div class="tbox cy" style="font-size:12px;display:block;text-align:center;">&#128274; Thread-1</div>
+                </div>
+            </div>
+            <div style="text-align:center;">
+                <div style="font-size:11px;font-weight:900;color:#4a5568;margin-bottom:10px;letter-spacing:1.5px;">WAIT SET</div>
+                <div style="background:rgba(254,202,87,0.06);border:2px solid rgba(254,202,87,0.15);border-radius:14px;padding:16px 22px;min-width:160px;">
+                    <div style="font-size:11px;font-weight:700;color:#fbbf24;margin-bottom:8px;">Called wait(), sleeping</div>
+                    <div class="tbox yw" style="font-size:12px;display:block;text-align:center;">Thread-4</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sec-label rd">Method-level vs Block-level Performance</div>
+
+    <div class="diagram">
+        <div class="diagram-title rd">Method-Level &mdash; Lock held for ENTIRE method</div>
+        <div class="timeline">
+            <div class="tl-row"><div class="tl-label">Thread-1</div><div class="tl-bar"><div class="tl-seg lock" style="width:60px;">log()</div><div class="tl-seg lock" style="width:75px;">validate</div><div class="tl-seg lock" style="width:100px;">&#128274; balance</div><div class="tl-seg lock" style="width:70px;">notify</div><div class="tl-seg lock" style="width:55px;">log()</div></div></div>
+            <div class="tl-row"><div class="tl-label">Thread-2</div><div class="tl-bar"><div class="tl-seg blocked" style="width:360px;">&#128721; BLOCKED &mdash; waiting for entire method</div></div></div>
+        </div>
+        <div style="font-size:12px;font-weight:700;color:#f87171;margin-top:10px;text-align:center;">Thread-2 blocked even during log/validate that don&rsquo;t touch shared state!</div>
+    </div>
+
+    <div class="diagram">
+        <div class="diagram-title gn">Block-Level &mdash; Lock held ONLY for critical section</div>
+        <div class="timeline">
+            <div class="tl-row"><div class="tl-label">Thread-1</div><div class="tl-bar"><div class="tl-seg run" style="width:60px;">log()</div><div class="tl-seg run" style="width:75px;">validate</div><div class="tl-seg lock" style="width:100px;">&#128274; balance</div><div class="tl-seg run" style="width:70px;">notify</div><div class="tl-seg run" style="width:55px;">log()</div></div></div>
+            <div class="tl-row"><div class="tl-label">Thread-2</div><div class="tl-bar"><div class="tl-seg run" style="width:60px;">log()</div><div class="tl-seg run" style="width:75px;">validate</div><div class="tl-seg blocked" style="width:100px;">BLOCKED</div><div class="tl-seg run" style="width:70px;">notify</div><div class="tl-seg run" style="width:55px;">log()</div></div></div>
+        </div>
+        <div style="font-size:12px;font-weight:700;color:#4ade80;margin-top:10px;text-align:center;">Both run log/validate/notify in parallel! Only balance is serialized.</div>
+    </div>
+
+    <div class="sec-label cy">Maximum parallelism: different locks for different resources</div>
+    <div class="acode">
+        <div class="acode-row"><div class="acode-src"><span class="kw">class</span> BankAccount {</div><div class="acode-note dim"></div></div>
+        <div class="acode-row"><div class="acode-src">    <span class="kw">private final</span> Object <span class="fn">balanceLock</span> = <span class="kw">new</span> Object();</div><div class="acode-note cy">Lock A &mdash; for balance ops</div></div>
+        <div class="acode-row"><div class="acode-src">    <span class="kw">private final</span> Object <span class="fn">nameLock</span>    = <span class="kw">new</span> Object();</div><div class="acode-note pu">Lock B &mdash; for name ops</div></div>
+        <div class="acode-row"><div class="acode-src">    <span class="kw">void</span> <span class="fn">withdraw</span>()   { <span class="kw">synchronized</span>(<span class="fn">balanceLock</span>) { <span class="cm">/*...*/</span> } }</div><div class="acode-note cy">Uses Lock A</div></div>
+        <div class="acode-row"><div class="acode-src">    <span class="kw">void</span> <span class="fn">updateName</span>() { <span class="kw">synchronized</span>(<span class="fn">nameLock</span>)    { <span class="cm">/*...*/</span> } }</div><div class="acode-note pu">Uses Lock B &mdash; runs in parallel!</div></div>
+        <div class="acode-row"><div class="acode-src">}</div><div class="acode-note dim"></div></div>
+    </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 3. WAIT / NOTIFY / NOTIFYALL                                  -->
+<!-- ============================================================ -->
+<div class="sec th-pu">
+    <div class="sec-h">
+        <div class="sec-n">3</div>
+        <div><div class="sec-t">wait() / notify() / notifyAll()</div>
+        <div class="sec-sub">Inter-thread communication &mdash; everything is about the OBJECT</div></div>
+    </div>
+
+    <div class="callout cy">
+        <div class="callout-icon">&#128161;</div>
+        <div class="callout-body">
+            <div class="co-title cy">Key Insight</div>
+            <div class="co-text">
+                wait(), notify(), notifyAll() are methods of <b>Object class</b> &mdash; not Thread class. Every Java object has a monitor. The lock is on an object. wait/notify is also on the <b>same object</b>. Threads communicate <b>THROUGH</b> the object&rsquo;s monitor.
+            </div>
+        </div>
+    </div>
+
+    <div class="diagram">
+        <div class="diagram-title pu">What happens when a Thread calls wait()</div>
+        <div class="steps" style="margin:0;">
+            <div class="step"><div class="step-n cy">1</div><div class="step-b"><div class="step-t"><b>RELEASES the lock</b> &mdash; This is crucial! Without releasing, no other thread could ever enter the synchronized block and call notify().</div></div></div>
+            <div class="step"><div class="step-n yw">2</div><div class="step-b"><div class="step-t"><b>Moves to WAIT SET</b> &mdash; Thread goes to sleep inside the monitor&rsquo;s wait set. It&rsquo;s completely dormant.</div></div></div>
+            <div class="step"><div class="step-n gn">3</div><div class="step-b"><div class="step-t"><b>When notified &rarr; moves to ENTRY SET</b> &mdash; Must <span class="rd"><b>re-acquire the lock</b></span> before it can continue executing from the line after wait().</div></div></div>
+        </div>
+    </div>
+
+    <div class="card-grid">
+        <div class="card gn-c">
+            <div class="card-label gn">notify()</div>
+            <div class="card-title">Wake ONE random thread</div>
+            <div class="card-desc">Moves <b>one thread</b> from Wait Set to Entry Set. Does <b>NOT release lock</b>. The woken thread still must wait for the lock to become available.</div>
+        </div>
+        <div class="card yw-c">
+            <div class="card-label yw">notifyAll()</div>
+            <div class="card-title">Wake ALL threads</div>
+            <div class="card-desc">Moves <b>all threads</b> from Wait Set to Entry Set. They all compete for the lock &mdash; only <b>ONE wins</b>. Rest go back to BLOCKED state in Entry Set.</div>
+        </div>
+    </div>
+
+    <div class="callout rd">
+        <div class="callout-icon">&#9888;&#65039;</div>
+        <div class="callout-body">
+            <div class="co-title rd">wait() vs sleep() &mdash; THE Key Difference</div>
+            <div class="co-text">
+                <b>wait()</b>: <span class="gn">RELEASES</span> the lock, must be inside synchronized, used for inter-thread communication.<br>
+                <b>sleep()</b>: <span class="rd">Does NOT release</span> the lock, doesn&rsquo;t need synchronized, just pauses the thread.<br><br>
+                <b>Why while-loop and not if?</b> Because of <b>spurious wakeups</b> (thread can wake without notify) and <b>notifyAll()</b> (multiple threads wake but only one can act).
+            </div>
+        </div>
+    </div>
+
+    <div class="sec-label pu">Template: Producer-Consumer with wait/notify</div>
+    <div class="acode">
+        <div class="acode-row"><div class="acode-src"><span class="kw">public synchronized void</span> <span class="fn">produce</span>(<span class="kw">int</span> item) <span class="kw">throws</span> InterruptedException {</div><div class="acode-note dim"></div></div>
+        <div class="acode-row"><div class="acode-src">    <span class="kw">while</span> (buffer.size() == capacity)</div><div class="acode-note yw">while, NOT if (spurious wakeup!)</div></div>
+        <div class="acode-row"><div class="acode-src">        <span class="fn">wait</span>();</div><div class="acode-note rd">Releases lock + sleeps</div></div>
+        <div class="acode-row"><div class="acode-src">    buffer.<span class="fn">add</span>(item);</div><div class="acode-note gn">Critical section</div></div>
+        <div class="acode-row"><div class="acode-src">    <span class="fn">notifyAll</span>();</div><div class="acode-note cy">Wake waiting consumers</div></div>
+        <div class="acode-row"><div class="acode-src">}</div><div class="acode-note dim"></div></div>
+    </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 4. REENTRANT LOCK                                             -->
+<!-- ============================================================ -->
+<div class="sec th-gn">
+    <div class="sec-h">
+        <div class="sec-n">4</div>
+        <div><div class="sec-t">ReentrantLock</div>
+        <div class="sec-sub">Explicit lock with superpowers: tryLock, timeout, fairness, multiple Conditions</div></div>
+    </div>
+
+    <div class="analogy">
+        <div class="analogy-icon">&#128295;</div>
+        <div class="analogy-text">
+            <b>synchronized</b> = automatic car door lock (simple, JVM manages everything). <b>ReentrantLock</b> = manual lock with a physical key &mdash; you decide <b>when</b> to lock, <b>when</b> to unlock, you can <b>try</b> the lock, set a <b>timeout</b>, and choose <b>fairness</b>.
+        </div>
+    </div>
+
+    <div class="sec-label gn">4 Superpowers that synchronized doesn&rsquo;t have</div>
+
+    <div class="card-grid">
+        <div class="card gn-c">
+            <div class="card-label gn">Power 1: tryLock()</div>
+            <div class="card-title">Try Without Blocking</div>
+            <div class="card-desc">Returns <b>true/false</b> immediately. Can&rsquo;t get lock? Do something else instead of blocking forever. <span class="gn">Prevents thread starvation.</span></div>
+        </div>
+        <div class="card yw-c">
+            <div class="card-label yw">Power 2: tryLock(timeout)</div>
+            <div class="card-title">Wait With Timeout</div>
+            <div class="card-desc">Wait <b>max N seconds</b> for the lock. If still blocked, give up gracefully. <span class="yw">Critical for trading systems.</span></div>
+        </div>
+        <div class="card cy-c">
+            <div class="card-label cy">Power 3: lockInterruptibly()</div>
+            <div class="card-title">Can Be Interrupted</div>
+            <div class="card-desc">A thread waiting for the lock can be <b>interrupted</b> and cleanly exit. synchronized ignores interrupt() while BLOCKED.</div>
+        </div>
+        <div class="card pu-c">
+            <div class="card-label pu">Power 4: Fairness</div>
+            <div class="card-title">First Come, First Served</div>
+            <div class="card-desc"><b>new ReentrantLock(true)</b> guarantees FIFO order. Longest-waiting thread gets lock first. synchronized has <b>no fairness</b>.</div>
+        </div>
+    </div>
+
+    <div class="callout cy">
+        <div class="callout-icon">&#128260;</div>
+        <div class="callout-body">
+            <div class="co-title cy">What does &ldquo;Reentrant&rdquo; mean?</div>
+            <div class="co-text">
+                Same thread can acquire the <b>same lock multiple times</b> without deadlocking itself. Lock keeps a <b>hold count</b>: lock() increments it, unlock() decrements it. Truly released when count reaches 0. Note: <b>synchronized is also reentrant!</b>
+            </div>
+        </div>
+    </div>
+
+    <div class="sec-label gn">Template: ReentrantLock with try-finally</div>
+    <div class="acode">
+        <div class="acode-row"><div class="acode-src"><span class="kw">private final</span> ReentrantLock lock = <span class="kw">new</span> ReentrantLock();</div><div class="acode-note dim"></div></div>
+        <div class="acode-row"><div class="acode-src"></div><div class="acode-note dim"></div></div>
+        <div class="acode-row"><div class="acode-src"><span class="kw">public void</span> <span class="fn">criticalSection</span>() {</div><div class="acode-note dim"></div></div>
+        <div class="acode-row"><div class="acode-src">    lock.<span class="fn">lock</span>();</div><div class="acode-note gn">Acquire lock</div></div>
+        <div class="acode-row"><div class="acode-src">    <span class="kw">try</span> {</div><div class="acode-note dim"></div></div>
+        <div class="acode-row"><div class="acode-src">        <span class="cm">// your protected code here</span></div><div class="acode-note cy">Critical section</div></div>
+        <div class="acode-row"><div class="acode-src">    } <span class="kw">finally</span> {</div><div class="acode-note dim"></div></div>
+        <div class="acode-row"><div class="acode-src">        lock.<span class="fn">unlock</span>();</div><div class="acode-note rd">MUST unlock in finally!</div></div>
+        <div class="acode-row"><div class="acode-src">    }</div><div class="acode-note dim"></div></div>
+        <div class="acode-row"><div class="acode-src">}</div><div class="acode-note dim"></div></div>
+    </div>
+
+    <div class="sec-label pu">Condition: Multiple Wait Sets (synchronized has only ONE)</div>
+    <div class="acode">
+        <div class="acode-row"><div class="acode-src">Condition <span class="fn">notFull</span>  = lock.<span class="fn">newCondition</span>();</div><div class="acode-note yw">Producers wait here</div></div>
+        <div class="acode-row"><div class="acode-src">Condition <span class="fn">notEmpty</span> = lock.<span class="fn">newCondition</span>();</div><div class="acode-note cy">Consumers wait here</div></div>
+        <div class="acode-row"><div class="acode-src"></div><div class="acode-note dim"></div></div>
+        <div class="acode-row"><div class="acode-src">notFull.<span class="fn">await</span>();</div><div class="acode-note yw">equivalent to wait()</div></div>
+        <div class="acode-row"><div class="acode-src">notEmpty.<span class="fn">signal</span>();</div><div class="acode-note gn">equivalent to notify() &mdash; targeted!</div></div>
+        <div class="acode-row"><div class="acode-src">notEmpty.<span class="fn">signalAll</span>();</div><div class="acode-note pu">equivalent to notifyAll()</div></div>
+    </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 5. READWRITELOCK & STAMPEDLOCK                                -->
+<!-- ============================================================ -->
+<div class="sec th-bl">
+    <div class="sec-h">
+        <div class="sec-n">5</div>
+        <div><div class="sec-t">ReadWriteLock &amp; StampedLock</div>
+        <div class="sec-sub">Multiple readers simultaneously, exclusive writer access</div></div>
+    </div>
+
+    <div class="card-grid-3">
+        <div class="card gn-c" style="text-align:center;"><div style="font-size:30px;margin-bottom:6px;">&#9989;</div><div class="card-title">READ + READ</div><div class="card-desc"><b>Both proceed!</b><br>No conflict between readers</div></div>
+        <div class="card rd-c" style="text-align:center;"><div style="font-size:30px;margin-bottom:6px;">&#10060;</div><div class="card-title">READ + WRITE</div><div class="card-desc"><b>One must wait</b><br>Writer needs exclusive access</div></div>
+        <div class="card rd-c" style="text-align:center;"><div style="font-size:30px;margin-bottom:6px;">&#10060;</div><div class="card-title">WRITE + WRITE</div><div class="card-desc"><b>One must wait</b><br>Only one writer at a time</div></div>
+    </div>
+
+    <div class="diagram">
+        <div class="diagram-title bl">ReadWriteLock in Action</div>
+        <div class="timeline">
+            <div class="tl-row"><div class="tl-label">Reader-1</div><div class="tl-bar"><div class="tl-seg run" style="width:180px;">&#128214; READING</div><div class="tl-seg free" style="width:100px;"></div><div class="tl-seg run" style="width:150px;">&#128214; READING</div></div></div>
+            <div class="tl-row"><div class="tl-label">Reader-2</div><div class="tl-bar"><div class="tl-seg run" style="width:180px;">&#128214; READING</div><div class="tl-seg free" style="width:100px;"></div><div class="tl-seg run" style="width:150px;">&#128214; READING</div></div></div>
+            <div class="tl-row"><div class="tl-label">Reader-3</div><div class="tl-bar"><div class="tl-seg run" style="width:180px;">&#128214; READING</div><div class="tl-seg free" style="width:100px;"></div><div class="tl-seg run" style="width:150px;">&#128214; READING</div></div></div>
+            <div class="tl-row"><div class="tl-label">Writer-1</div><div class="tl-bar"><div class="tl-seg blocked" style="width:180px;">&#128721; WAITING</div><div class="tl-seg lock" style="width:100px;">&#9997;&#65039; WRITING</div><div class="tl-seg free" style="width:150px;"></div></div></div>
+        </div>
+        <div style="font-size:12px;font-weight:700;color:#60a5fa;margin-top:10px;text-align:center;">All 3 readers run in parallel! Writer waits, then gets exclusive access.</div>
+    </div>
+
+    <div class="sec-label bl">Template: ReadWriteLock</div>
+    <div class="acode">
+        <div class="acode-row"><div class="acode-src">ReadWriteLock rwLock = <span class="kw">new</span> ReentrantReadWriteLock();</div><div class="acode-note dim"></div></div>
+        <div class="acode-row"><div class="acode-src">Lock readLock  = rwLock.<span class="fn">readLock</span>();</div><div class="acode-note gn">Shared lock (many readers)</div></div>
+        <div class="acode-row"><div class="acode-src">Lock writeLock = rwLock.<span class="fn">writeLock</span>();</div><div class="acode-note rd">Exclusive lock (one writer)</div></div>
+        <div class="acode-row"><div class="acode-src"></div><div class="acode-note dim"></div></div>
+        <div class="acode-row"><div class="acode-src"><span class="kw">double</span> <span class="fn">getPrice</span>() {</div><div class="acode-note dim"></div></div>
+        <div class="acode-row"><div class="acode-src">    readLock.<span class="fn">lock</span>();</div><div class="acode-note gn">Multiple threads can read</div></div>
+        <div class="acode-row"><div class="acode-src">    <span class="kw">try</span> { <span class="kw">return</span> price; }</div><div class="acode-note dim"></div></div>
+        <div class="acode-row"><div class="acode-src">    <span class="kw">finally</span> { readLock.<span class="fn">unlock</span>(); }</div><div class="acode-note dim"></div></div>
+        <div class="acode-row"><div class="acode-src">}</div><div class="acode-note dim"></div></div>
+    </div>
+
+    <div class="sec-label bl">StampedLock (Java 8+) &mdash; Even Faster Reads</div>
+
+    <div class="card-grid">
+        <div class="card bl-c">
+            <div class="card-label bl">Optimistic Read</div>
+            <div class="card-title">Lock-free reading</div>
+            <div class="card-desc">Gets a <b>stamp</b>, reads data, then <b>validates</b>. If no writer intervened, the read was valid. <span class="gn">Zero contention for reads!</span> Falls back to a real read lock if validation fails.</div>
+        </div>
+        <div class="card or-c">
+            <div class="card-label or">Trade-off</div>
+            <div class="card-title">Not reentrant!</div>
+            <div class="card-desc">StampedLock is <b>NOT reentrant</b>. Calling lock twice from same thread &rarr; deadlock! Not Condition-compatible either. Use only when optimistic reads give a clear benefit.</div>
+        </div>
+    </div>
+
+    <div class="sec-label bl">Template: StampedLock Optimistic Read</div>
+    <pre class="code bl-b">StampedLock sl = <span class="kw">new</span> StampedLock();
+
+<span class="kw">double</span> <span class="fn">getPrice</span>() {
+    <span class="kw">long</span> stamp = sl.<span class="fn">tryOptimisticRead</span>();   <span class="cm">// No lock! Just a stamp</span>
+    <span class="kw">double</span> p = price;                      <span class="cm">// Read optimistically</span>
+    <span class="kw">if</span> (!sl.<span class="fn">validate</span>(stamp)) {              <span class="cm">// Did a writer intervene?</span>
+        stamp = sl.<span class="fn">readLock</span>();              <span class="cm">// Fallback: real read lock</span>
+        <span class="kw">try</span> { p = price; }
+        <span class="kw">finally</span> { sl.<span class="fn">unlockRead</span>(stamp); }
+    }
+    <span class="kw">return</span> p;
+}</pre>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 6. SEMAPHORE                                                  -->
+<!-- ============================================================ -->
+<div class="sec th-yw">
+    <div class="sec-h">
+        <div class="sec-n">6</div>
+        <div><div class="sec-t">Semaphore</div>
+        <div class="sec-sub">Allow N threads simultaneously &mdash; like a parking lot with N spaces</div></div>
+    </div>
+
+    <div class="analogy">
+        <div class="analogy-icon">&#127359;&#65039;</div>
+        <div class="analogy-text">
+            <b>synchronized / ReentrantLock</b> = bathroom with 1 key (1 thread at a time). <b>Semaphore(N)</b> = parking lot with N spaces. When all spaces are taken, new cars <b>wait</b>. When a car leaves (release), the next car enters.
+        </div>
+    </div>
+
+    <div class="diagram">
+        <div class="diagram-title yw">Semaphore(3) &mdash; 3 Permits Available</div>
+        <div style="display:flex;justify-content:center;gap:14px;align-items:flex-end;margin-bottom:16px;flex-wrap:wrap;">
+            <div style="text-align:center;">
+                <div class="tbox gn" style="font-size:12px;margin-bottom:8px;">T-1 &#128663;</div>
+                <div style="width:80px;height:55px;background:rgba(63,185,80,0.1);border:2px solid rgba(63,185,80,0.25);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#4ade80;">SLOT 1</div>
+            </div>
+            <div style="text-align:center;">
+                <div class="tbox gn" style="font-size:12px;margin-bottom:8px;">T-2 &#128663;</div>
+                <div style="width:80px;height:55px;background:rgba(63,185,80,0.1);border:2px solid rgba(63,185,80,0.25);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#4ade80;">SLOT 2</div>
+            </div>
+            <div style="text-align:center;">
+                <div class="tbox gn" style="font-size:12px;margin-bottom:8px;">T-3 &#128663;</div>
+                <div style="width:80px;height:55px;background:rgba(63,185,80,0.1);border:2px solid rgba(63,185,80,0.25);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#4ade80;">SLOT 3</div>
+            </div>
+            <div style="text-align:center;margin-left:20px;">
+                <div class="tbox rd" style="font-size:12px;margin-bottom:8px;">T-4 &#128663; WAITING</div>
+                <div style="width:80px;height:55px;background:rgba(255,107,107,0.06);border:2px dashed rgba(255,107,107,0.25);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#f87171;">FULL!</div>
+            </div>
+        </div>
+        <div style="font-size:12px;font-weight:700;color:#fbbf24;text-align:center;">permits = 0 &rarr; T-4 blocked at acquire(). When T-2 calls release() &rarr; T-4 enters.</div>
+    </div>
+
+    <div class="callout rd">
+        <div class="callout-icon">&#9888;&#65039;</div>
+        <div class="callout-body">
+            <div class="co-title rd">Semaphore(1) is NOT the same as a Mutex!</div>
+            <div class="co-text">
+                <b>Mutex / ReentrantLock:</b> Only the thread that locked can unlock. Is reentrant. Has ownership.<br>
+                <b>Semaphore(1):</b> <span class="rd">ANY thread can release!</span> NOT reentrant (same thread acquires twice = deadlock). No ownership concept.
+            </div>
+        </div>
+    </div>
+
+    <div class="sec-label yw">Template: Semaphore (DB Connection Pool)</div>
+    <pre class="code yw-b">Semaphore sem = <span class="kw">new</span> Semaphore(<span class="num">5</span>);  <span class="cm">// max 5 concurrent connections</span>
+
+<span class="kw">public void</span> <span class="fn">executeQuery</span>(String query) <span class="kw">throws</span> InterruptedException {
+    sem.<span class="fn">acquire</span>();                      <span class="cm">// get a permit (or block if 0)</span>
+    <span class="kw">try</span> {
+        runQuery(query);                <span class="cm">// max 5 threads here at once</span>
+    } <span class="kw">finally</span> {
+        sem.<span class="fn">release</span>();                  <span class="cm">// return the permit</span>
+    }
+}</pre>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 7. COUNTDOWNLATCH                                             -->
+<!-- ============================================================ -->
+<div class="sec th-or">
+    <div class="sec-h">
+        <div class="sec-n">7</div>
+        <div><div class="sec-t">CountDownLatch</div>
+        <div class="sec-sub">Wait for N events to complete &mdash; one-time gate that opens when count reaches zero</div></div>
+    </div>
+
+    <div class="analogy">
+        <div class="analogy-icon">&#128640;</div>
+        <div class="analogy-text">
+            Like a <b>rocket launch countdown</b>. Set count to 3. Three systems report ready (countDown). When count hits 0, the rocket launches (await returns). <b>One-time use only</b> &mdash; cannot be reset.
+        </div>
+    </div>
+
+    <div class="diagram">
+        <div class="diagram-title or">CountDownLatch(3) &mdash; Flow</div>
+        <div style="display:flex;justify-content:center;gap:14px;align-items:center;flex-wrap:wrap;">
+            <div style="text-align:center;"><div class="tbox cy" style="font-size:12px;">Service-A</div><div style="font-size:11px;font-weight:800;color:#22d3ee;margin-top:5px;">countDown()</div></div>
+            <div style="text-align:center;"><div class="tbox gn" style="font-size:12px;">Service-B</div><div style="font-size:11px;font-weight:800;color:#4ade80;margin-top:5px;">countDown()</div></div>
+            <div style="text-align:center;"><div class="tbox pu" style="font-size:12px;">Service-C</div><div style="font-size:11px;font-weight:800;color:#a78bfa;margin-top:5px;">countDown()</div></div>
+            <div style="font-size:26px;color:#fb923c;font-weight:900;">&rarr;</div>
+            <div style="text-align:center;background:rgba(255,165,0,0.08);border:2px solid rgba(255,165,0,0.2);border-radius:14px;padding:14px 22px;">
+                <div style="font-size:22px;font-weight:900;color:#fb923c;">count = 0</div>
+                <div style="font-size:11px;font-weight:800;color:#6b7a94;">GATE OPENS!</div>
+            </div>
+            <div style="font-size:26px;color:#4ade80;font-weight:900;">&rarr;</div>
+            <div style="text-align:center;"><div class="tbox or" style="font-size:12px;">Main Thread</div><div style="font-size:11px;font-weight:800;color:#fb923c;margin-top:5px;">await() returns!</div></div>
+        </div>
+    </div>
+
+    <div class="sec-label or">Template: CountDownLatch</div>
+    <pre class="code or-b">CountDownLatch latch = <span class="kw">new</span> CountDownLatch(<span class="num">3</span>);  <span class="cm">// gate closed, count = 3</span>
+
+<span class="cm">// Each worker thread:</span>
+<span class="kw">void</span> <span class="fn">workerTask</span>() {
+    doWork();
+    latch.<span class="fn">countDown</span>();    <span class="cm">// count-- (3 &rarr; 2 &rarr; 1 &rarr; 0)</span>
+}
+
+<span class="cm">// Main thread:</span>
+latch.<span class="fn">await</span>();            <span class="cm">// blocks until count = 0</span>
+System.out.println(<span class="str">"All services ready! Launching..."</span>);</pre>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 8. CYCLIC BARRIER                                             -->
+<!-- ============================================================ -->
+<div class="sec th-pk">
+    <div class="sec-h">
+        <div class="sec-n">8</div>
+        <div><div class="sec-t">CyclicBarrier</div>
+        <div class="sec-sub">All threads wait for each other &mdash; a reusable meeting point</div></div>
+    </div>
+
+    <div class="analogy">
+        <div class="analogy-icon">&#127939;</div>
+        <div class="analogy-text">
+            Like <b>friends meeting at a restaurant</b>. Everyone arrives at different times, but <b>nobody starts eating until all 4 arrive</b>. Once all arrive, everyone eats. Then they can agree to meet again next week &mdash; it&rsquo;s <b>reusable</b>!
+        </div>
+    </div>
+
+    <div class="card-grid">
+        <div class="card or-c">
+            <div class="card-label or">CountDownLatch</div>
+            <div class="card-title">N threads signal, 1 thread waits</div>
+            <div class="card-desc">Workers do countDown(), main thread does await(). <b>One-time use.</b> Cannot be reset. <span class="or">Event-based:</span> &ldquo;wait for N events&rdquo;.</div>
+        </div>
+        <div class="card pk-c">
+            <div class="card-label pk">CyclicBarrier</div>
+            <div class="card-title">All N threads wait for each other</div>
+            <div class="card-desc">Every thread calls await(). All block until N arrive. <b>Reusable!</b> Auto-resets after tripping. <span class="pk">Rendezvous:</span> &ldquo;wait for each other&rdquo;.</div>
+        </div>
+    </div>
+
+    <div class="diagram">
+        <div class="diagram-title pk">CyclicBarrier(4) &mdash; All Wait for Each Other</div>
+        <div class="timeline">
+            <div class="tl-row"><div class="tl-label">Thread-1</div><div class="tl-bar"><div class="tl-seg run" style="width:70px;">work</div><div class="tl-seg wait" style="width:190px;">await()... waiting for others</div><div class="tl-seg run" style="width:110px;">&#127881; continue!</div></div></div>
+            <div class="tl-row"><div class="tl-label">Thread-2</div><div class="tl-bar"><div class="tl-seg run" style="width:110px;">work...</div><div class="tl-seg wait" style="width:150px;">await()... waiting</div><div class="tl-seg run" style="width:110px;">&#127881; continue!</div></div></div>
+            <div class="tl-row"><div class="tl-label">Thread-3</div><div class="tl-bar"><div class="tl-seg run" style="width:160px;">work......</div><div class="tl-seg wait" style="width:100px;">await()</div><div class="tl-seg run" style="width:110px;">&#127881; continue!</div></div></div>
+            <div class="tl-row"><div class="tl-label">Thread-4</div><div class="tl-bar"><div class="tl-seg run" style="width:220px;">work............</div><div class="tl-seg lock" style="width:40px;">&#10003;</div><div class="tl-seg run" style="width:110px;">&#127881; continue!</div></div></div>
+        </div>
+        <div style="font-size:12px;font-weight:700;color:#f472b6;margin-top:10px;text-align:center;">All 4 arrive &rarr; barrier trips &rarr; everyone continues! Barrier auto-resets for next round.</div>
+    </div>
+
+    <div class="sec-label pk">Template: CyclicBarrier</div>
+    <pre class="code pk-b">CyclicBarrier barrier = <span class="kw">new</span> CyclicBarrier(<span class="num">4</span>, () -> {
+    System.out.println(<span class="str">"All 4 arrived! Proceeding..."</span>);
+});
+
+<span class="cm">// Each of the 4 threads:</span>
+<span class="kw">void</span> <span class="fn">task</span>() <span class="kw">throws</span> Exception {
+    doPhase1();
+    barrier.<span class="fn">await</span>();     <span class="cm">// block until all 4 arrive</span>
+    doPhase2();           <span class="cm">// everyone proceeds together!</span>
+    barrier.<span class="fn">await</span>();     <span class="cm">// reusable! wait again for phase 2</span>
+}</pre>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 9. TEMPLATES & CHEAT SHEET                                    -->
+<!-- ============================================================ -->
+<div class="sec th-rd">
+    <div class="sec-h">
+        <div class="sec-n">9</div>
+        <div><div class="sec-t">Templates &amp; Cheat Sheet</div>
+        <div class="sec-sub">Copy-paste templates &amp; decision framework for any concurrency problem</div></div>
+    </div>
+
+    <div class="sec-label rd">Pattern Recognition: Which tool for which problem?</div>
+
+    <table class="tbl">
+        <tr><th style="width:260px;">When you see this...</th><th>Reach for this tool</th></tr>
+        <tr><td><b>&ldquo;Execute in ORDER&rdquo;</b></td><td><span class="or">CountDownLatch</span> or <span class="yw">Semaphore(0)</span></td></tr>
+        <tr><td><b>&ldquo;ALTERNATE between threads&rdquo;</b></td><td>Two <span class="yw">Semaphores</span> (ping-pong pattern)</td></tr>
+        <tr><td><b>&ldquo;LIMIT to N concurrent&rdquo;</b></td><td><span class="yw">Semaphore(N)</span></td></tr>
+        <tr><td><b>&ldquo;Wait for ALL to arrive&rdquo;</b></td><td><span class="pk">CyclicBarrier(N)</span></td></tr>
+        <tr><td><b>&ldquo;Wait for N events&rdquo;</b></td><td><span class="or">CountDownLatch(N)</span></td></tr>
+        <tr><td><b>&ldquo;Producer-Consumer&rdquo;</b></td><td><span class="gn">BlockingQueue</span> or <span class="gn">ReentrantLock + Condition</span></td></tr>
+        <tr><td><b>&ldquo;Many readers, 1 writer&rdquo;</b></td><td><span class="bl">ReadWriteLock</span> or <span class="bl">StampedLock</span></td></tr>
+        <tr><td><b>&ldquo;Prevent deadlock&rdquo;</b></td><td><b>Lock ordering</b> or <span class="gn">tryLock(timeout)</span></td></tr>
+        <tr><td><b>&ldquo;Thread-safe singleton&rdquo;</b></td><td><span class="pu">volatile</span> + double-checked locking / Bill Pugh / Enum</td></tr>
+    </table>
+
+    <div class="sec-label yw">Template: Print FooBar Alternately (LC 1115)</div>
+    <pre class="code yw-b">Semaphore fooSem = <span class="kw">new</span> Semaphore(<span class="num">1</span>);  <span class="cm">// foo goes first</span>
+Semaphore barSem = <span class="kw">new</span> Semaphore(<span class="num">0</span>);  <span class="cm">// bar waits</span>
+
+<span class="kw">void</span> <span class="fn">foo</span>(Runnable printFoo) <span class="kw">throws</span> InterruptedException {
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) {
+        fooSem.<span class="fn">acquire</span>();     <span class="cm">// wait for my turn</span>
+        printFoo.run();
+        barSem.<span class="fn">release</span>();     <span class="cm">// signal bar to go</span>
+    }
+}
+<span class="kw">void</span> <span class="fn">bar</span>(Runnable printBar) <span class="kw">throws</span> InterruptedException {
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) {
+        barSem.<span class="fn">acquire</span>();     <span class="cm">// wait for my turn</span>
+        printBar.run();
+        fooSem.<span class="fn">release</span>();     <span class="cm">// signal foo to go</span>
+    }
+}</pre>
+
+    <div class="sec-label gn">Template: Producer-Consumer (ReentrantLock + Condition)</div>
+    <pre class="code gn-b">ReentrantLock lock   = <span class="kw">new</span> ReentrantLock();
+Condition <span class="fn">notFull</span>    = lock.newCondition();
+Condition <span class="fn">notEmpty</span>   = lock.newCondition();
+Queue&lt;T&gt; buffer      = <span class="kw">new</span> LinkedList&lt;&gt;();
+
+<span class="kw">void</span> <span class="fn">produce</span>(T item) <span class="kw">throws</span> InterruptedException {
+    lock.<span class="fn">lock</span>();
+    <span class="kw">try</span> {
+        <span class="kw">while</span> (buffer.size() == capacity)
+            notFull.<span class="fn">await</span>();       <span class="cm">// only producers wait here</span>
+        buffer.add(item);
+        notEmpty.<span class="fn">signal</span>();      <span class="cm">// wake exactly ONE consumer</span>
+    } <span class="kw">finally</span> { lock.<span class="fn">unlock</span>(); }
+}
+
+T <span class="fn">consume</span>() <span class="kw">throws</span> InterruptedException {
+    lock.<span class="fn">lock</span>();
+    <span class="kw">try</span> {
+        <span class="kw">while</span> (buffer.isEmpty())
+            notEmpty.<span class="fn">await</span>();      <span class="cm">// only consumers wait here</span>
+        T item = buffer.poll();
+        notFull.<span class="fn">signal</span>();       <span class="cm">// wake exactly ONE producer</span>
+        <span class="kw">return</span> item;
+    } <span class="kw">finally</span> { lock.<span class="fn">unlock</span>(); }
+}</pre>
+
+    <div class="sec-label pu">Template: Thread-Safe Singleton (3 approaches)</div>
+    <pre class="code pu-b"><span class="cm">// 1. Double-Checked Locking (volatile + synchronized)</span>
+<span class="kw">class</span> Singleton {
+    <span class="kw">private static volatile</span> Singleton instance;
+    <span class="kw">public static</span> Singleton <span class="fn">getInstance</span>() {
+        <span class="kw">if</span> (instance == <span class="kw">null</span>) {                  <span class="cm">// 1st check (no lock)</span>
+            <span class="kw">synchronized</span> (Singleton.<span class="kw">class</span>) {
+                <span class="kw">if</span> (instance == <span class="kw">null</span>)              <span class="cm">// 2nd check (with lock)</span>
+                    instance = <span class="kw">new</span> Singleton();
+            }
+        }
+        <span class="kw">return</span> instance;
+    }
+}
+
+<span class="cm">// 2. Bill Pugh (inner static class &mdash; lazy, thread-safe by JVM)</span>
+<span class="kw">class</span> Singleton {
+    <span class="kw">private static class</span> Holder {
+        <span class="kw">static final</span> Singleton INSTANCE = <span class="kw">new</span> Singleton();
+    }
+    <span class="kw">public static</span> Singleton <span class="fn">getInstance</span>() { <span class="kw">return</span> Holder.INSTANCE; }
+}
+
+<span class="cm">// 3. Enum (simplest, reflection-safe, serialization-safe)</span>
+<span class="kw">enum</span> Singleton { INSTANCE; }</pre>
+
+    <!-- MEGA COMPARISON TABLE -->
+    <div class="sec-label rd">The Mega Comparison Table</div>
+
+    <table class="tbl">
+        <tr>
+            <th style="width:130px;">Feature</th>
+            <th><span class="rd">synchronized</span></th>
+            <th><span class="gn">ReentrantLock</span></th>
+            <th><span class="bl">ReadWriteLock</span></th>
+            <th><span class="yw">Semaphore</span></th>
+        </tr>
+        <tr><td><b>Threads allowed</b></td><td>1</td><td>1</td><td><b class="gn">N readers</b> or 1 writer</td><td><b class="yw">N</b> (you choose)</td></tr>
+        <tr><td><b>Locks on</b></td><td>Any <b>object</b></td><td>Lock object</td><td>Lock object</td><td><span class="yw">Permits (counter)</span></td></tr>
+        <tr><td><b>Lock/Unlock</b></td><td><span class="gn">Automatic</span></td><td><span class="rd">Manual</span></td><td><span class="rd">Manual</span></td><td><span class="rd">Manual</span></td></tr>
+        <tr><td><b>tryLock?</b></td><td><span class="rd">No</span></td><td><span class="gn">Yes</span></td><td><span class="gn">Yes</span></td><td><span class="gn">tryAcquire</span></td></tr>
+        <tr><td><b>Timeout?</b></td><td><span class="rd">No</span></td><td><span class="gn">Yes</span></td><td><span class="gn">Yes</span></td><td><span class="gn">Yes</span></td></tr>
+        <tr><td><b>Interruptible?</b></td><td><span class="rd">No</span></td><td><span class="gn">Yes</span></td><td><span class="gn">Yes</span></td><td><span class="gn">Yes</span></td></tr>
+        <tr><td><b>Fair mode?</b></td><td><span class="rd">No</span></td><td><span class="gn">Yes</span></td><td><span class="gn">Yes</span></td><td><span class="gn">Yes</span></td></tr>
+        <tr><td><b>Reentrant?</b></td><td><span class="gn">Yes</span></td><td><span class="gn">Yes</span></td><td><span class="gn">Yes</span></td><td><span class="rd">No</span></td></tr>
+        <tr><td><b>Ownership?</b></td><td><span class="gn">Yes</span></td><td><span class="gn">Yes</span></td><td><span class="gn">Yes</span></td><td><span class="rd">No</span></td></tr>
+        <tr><td><b>Conditions?</b></td><td>1 wait set</td><td><b class="gn">Multiple!</b></td><td><span class="gn">Yes</span></td><td><span class="rd">No</span></td></tr>
+    </table>
+
+    <table class="tbl" style="margin-top:18px;">
+        <tr>
+            <th style="width:150px;">Feature</th>
+            <th><span class="or">CountDownLatch</span></th>
+            <th><span class="pk">CyclicBarrier</span></th>
+            <th><span class="bl">StampedLock</span></th>
+        </tr>
+        <tr><td><b>Purpose</b></td><td>Wait for <b>N events</b></td><td>All N threads <b>rendezvous</b></td><td>Read/Write + <b>optimistic reads</b></td></tr>
+        <tr><td><b>Reusable?</b></td><td><span class="rd">No</span> (one-time)</td><td><span class="gn">Yes</span> (auto-reset)</td><td>N/A</td></tr>
+        <tr><td><b>Who waits?</b></td><td>1 thread awaits, N count down</td><td><b>All N</b> threads await each other</td><td>N/A</td></tr>
+        <tr><td><b>Reentrant?</b></td><td>N/A</td><td>N/A</td><td><span class="rd">No!</span> Can deadlock self</td></tr>
+        <tr><td><b>Action on trip?</b></td><td>No</td><td><span class="gn">Yes</span> (Runnable in constructor)</td><td>N/A</td></tr>
+        <tr><td><b>Use case</b></td><td>Service startup, test sync</td><td>Phased computation, gaming</td><td>Read-heavy caches</td></tr>
+    </table>
+
+    <!-- Deadlock -->
+    <div class="sec-label rd">Deadlock: 4 Conditions (ALL must be true)</div>
+    <div class="card-grid">
+        <div class="card rd-c"><div class="card-label rd">Condition 1</div><div class="card-title">Mutual Exclusion</div><div class="card-desc">Resource held exclusively by one thread at a time.</div></div>
+        <div class="card rd-c"><div class="card-label rd">Condition 2</div><div class="card-title">Hold and Wait</div><div class="card-desc">Hold one lock while waiting for another.</div></div>
+        <div class="card rd-c"><div class="card-label rd">Condition 3</div><div class="card-title">No Preemption</div><div class="card-desc">Can&rsquo;t forcibly take a lock from another thread.</div></div>
+        <div class="card gn-c"><div class="card-label gn">Prevention</div><div class="card-title">Break ANY one condition</div><div class="card-desc"><b>Lock ordering</b> (breaks circular wait), <b>tryLock(timeout)</b> (breaks hold-and-wait), <b>Semaphore limit</b> (fewer participants).</div></div>
+    </div>
+
+    <div class="callout gn" style="margin-top:24px;">
+        <div class="callout-icon">&#127775;</div>
+        <div class="callout-body">
+            <div class="co-title gn">Interview Approach for ANY Concurrency Problem</div>
+            <div class="co-text">
+                <b>Step 1:</b> Identify what needs coordination (ordering? limiting? waiting?).<br>
+                <b>Step 2:</b> Pick the right tool from the pattern table above.<br>
+                <b>Step 3:</b> Explain WHY that tool (what property you need).<br>
+                <b>Step 4:</b> Apply the template code with your modifications.<br>
+                <b>Step 5:</b> Explain how it prevents race conditions and deadlocks.
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 10. RECENTLY ASKED IN DSA ROUNDS                              -->
+<!-- ============================================================ -->
+<div class="sec th-rd" style="background:linear-gradient(180deg,rgba(255,65,108,0.04) 0%,transparent 100%);">
+    <div class="sec-h">
+        <div class="sec-n" style="background:linear-gradient(135deg,rgba(255,65,108,0.15),rgba(255,75,43,0.15));color:#ff416c;border-color:rgba(255,65,108,0.4);box-shadow:0 0 24px rgba(255,65,108,0.15);">&#127919;</div>
+        <div><div class="sec-t" style="background:linear-gradient(90deg,#ff416c,#ff4b2b,#feca57);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Recently Asked Questions in DSA Rounds</div>
+        <div class="sec-sub">Real concurrency problems asked in interviews &mdash; framed as DSA-style questions</div></div>
+    </div>
+
+    <div class="callout yw" style="margin-bottom:28px;">
+        <div class="callout-icon">&#128161;</div>
+        <div class="callout-body">
+            <div class="co-title yw">How to Approach These</div>
+            <div class="co-text">These are NOT just theory &mdash; interviewers expect you to <b>code them live</b> using Java concurrency primitives. Identify the <b>coordination pattern</b> first, then pick the right tool (Semaphore, ReentrantLock, wait/notify, etc.).</div>
+        </div>
+    </div>
+
+    <!-- Q1: Print Matrix using N Threads -->
+    <div class="sec-label rd">Question 1 &mdash; Matrix Print (Multi-threaded)</div>
+    <div class="card rd-c" style="margin-bottom:8px;">
+        <div class="card-label rd">Amazon &bull; Goldman Sachs &bull; Morgan Stanley</div>
+        <div class="card-title">Print an M&times;N Matrix Row-by-Row Using N Threads</div>
+        <div class="card-desc">
+            Given an <b>M&times;N matrix</b>, you have <b>N threads</b> (one per column).<br>
+            Thread-0 prints column 0 of every row, Thread-1 prints column 1 of every row, and so on.<br><br>
+            <b>Constraint:</b> Output must be in order &mdash; row 0 fully printed before row 1 starts.<br>
+            Within a row, columns must print left-to-right: <b>Thread-0 &rarr; Thread-1 &rarr; &hellip; &rarr; Thread-(N-1)</b>.<br><br>
+            <span class="rd">Example:</span>
+        </div>
+    </div>
+<pre class="code rd-b">Matrix:              Expected Output:
+ 1  2  3              Thread-0: 1
+ 4  5  6              Thread-1: 2
+ 7  8  9              Thread-2: 3
+                      Thread-0: 4
+                      Thread-1: 5
+                      Thread-2: 6
+                      Thread-0: 7
+                      Thread-1: 8
+                      Thread-2: 9</pre>
+
+    <div class="card-grid">
+        <div class="card cy-c"><div class="card-label cy">Approach Hint</div><div class="card-title">Semaphore Chain</div><div class="card-desc">Each thread has a Semaphore. After Thread-<i>i</i> prints, it <b>releases</b> Thread-<i>(i+1) % N</i>&rsquo;s semaphore. Only Thread-0&rsquo;s semaphore starts with <b>1 permit</b>.</div></div>
+        <div class="card pu-c"><div class="card-label pu">Alternate Approach</div><div class="card-title">CyclicBarrier + Turn Variable</div><div class="card-desc">Use a shared <b>AtomicInteger turn</b>. Each thread spins/waits until <code>turn == myId</code>, prints, increments turn. CyclicBarrier at end of each row.</div></div>
+    </div>
+
+    <!-- Q2: Producer-Consumer -->
+    <div class="sec-label gn" style="margin-top:36px;">Question 2 &mdash; Producer-Consumer (Bounded Buffer)</div>
+    <div class="card gn-c" style="margin-bottom:8px;">
+        <div class="card-label gn">Morgan Stanley &bull; Flipkart &bull; Uber &bull; Google</div>
+        <div class="card-title">Implement a Thread-Safe Bounded Buffer (BlockingQueue)</div>
+        <div class="card-desc">
+            Implement a <b>bounded buffer</b> of size K that supports:<br>
+            &bull; <code><b>produce(item)</b></code> &mdash; blocks if buffer is full<br>
+            &bull; <code><b>consume()</b></code> &mdash; blocks if buffer is empty<br><br>
+            Multiple producers and multiple consumers must work <b>concurrently</b> without data loss or deadlock.<br><br>
+            <span class="gn">Variants asked:</span>
+        </div>
+    </div>
+    <div class="card-grid">
+        <div class="card yw-c"><div class="card-label yw">Variant A</div><div class="card-title">Using wait() / notify()</div><div class="card-desc">Classic approach &mdash; synchronized block on the buffer, <b>while-loop</b> guard for spurious wakeups, notifyAll() after produce/consume.</div></div>
+        <div class="card bl-c"><div class="card-label bl">Variant B</div><div class="card-title">Using ReentrantLock + Condition</div><div class="card-desc">Two conditions: <b>notFull</b> and <b>notEmpty</b>. Signal the <i>other</i> condition after each operation. More precise than notifyAll.</div></div>
+        <div class="card pu-c"><div class="card-label pu">Variant C</div><div class="card-title">Using Semaphore</div><div class="card-desc">Three semaphores: <b>empty(K)</b>, <b>full(0)</b>, <b>mutex(1)</b>. Producer acquires empty, acquires mutex, inserts, releases mutex, releases full.</div></div>
+        <div class="card or-c"><div class="card-label or">Follow-up</div><div class="card-title">Make it Lock-Free</div><div class="card-desc">Use <b>AtomicInteger</b> head/tail pointers on a circular array. CAS-based insert/remove. Asked at Google/Uber.</div></div>
+    </div>
+
+    <!-- Q3: Dining Philosophers -->
+    <div class="sec-label pu" style="margin-top:36px;">Question 3 &mdash; Dining Philosophers (LC 1226)</div>
+    <div class="card pu-c" style="margin-bottom:8px;">
+        <div class="card-label pu">Microsoft &bull; Amazon &bull; Morgan Stanley &bull; LeetCode 1226</div>
+        <div class="card-title">5 Philosophers, 5 Forks &mdash; No Deadlock, No Starvation</div>
+        <div class="card-desc">
+            5 philosophers sit around a circular table. Each needs <b>both</b> adjacent forks to eat.<br>
+            Implement <code><b>wantsToEat(id, pickLeftFork, pickRightFork, eat, putLeftFork, putRightFork)</b></code><br><br>
+            <b>Must avoid:</b> Deadlock (all hold left fork, wait for right) and Starvation (a philosopher never eats).<br><br>
+            <span class="pu">Classic DSA Problem &mdash; 3 approaches expected:</span>
+        </div>
+    </div>
+    <div class="card-grid">
+        <div class="card cy-c"><div class="card-label cy">Approach 1</div><div class="card-title">Resource Ordering</div><div class="card-desc">Always pick the <b>lower-numbered</b> fork first. Breaks circular wait. Simple and elegant &mdash; <b>preferred answer in interviews</b>.</div></div>
+        <div class="card gn-c"><div class="card-label gn">Approach 2</div><div class="card-title">Semaphore Limit (N-1)</div><div class="card-desc">Allow at most <b>4 philosophers</b> to attempt eating simultaneously using a Semaphore(4). Guarantees at least one can get both forks.</div></div>
+        <div class="card rd-c"><div class="card-label rd">Approach 3</div><div class="card-title">Odd-Even Strategy</div><div class="card-desc">Odd philosophers pick <b>left first</b>, even pick <b>right first</b>. Breaks the symmetry that causes circular wait.</div></div>
+        <div class="card yw-c"><div class="card-label yw">Follow-up</div><div class="card-title">Prove Deadlock-Freedom</div><div class="card-desc">Interviewer will ask: <b>&ldquo;Why does this prevent deadlock?&rdquo;</b> Map your solution to the <b>4 deadlock conditions</b> and show which one you break.</div></div>
+    </div>
+
+    <!-- Q4: Print FooBar Alternately -->
+    <div class="sec-label or" style="margin-top:36px;">Question 4 &mdash; Print FooBar Alternately (LC 1115)</div>
+    <div class="card or-c" style="margin-bottom:8px;">
+        <div class="card-label or">Amazon &bull; Microsoft &bull; LeetCode 1115</div>
+        <div class="card-title">Two Threads Print &ldquo;foobar&rdquo; N Times in Strict Alternation</div>
+        <div class="card-desc">
+            Thread A calls <code><b>foo()</b></code>, Thread B calls <code><b>bar()</b></code>. Output must be: <b>foobarfoobarfoobar&hellip;</b> (N times).<br><br>
+            <b>Constraint:</b> foo() always runs before bar() in each iteration &mdash; strict ordering.<br><br>
+            <span class="or">Variants also asked:</span><br>
+            &bull; <b>Print Zero Even Odd</b> (LC 1116) &mdash; 3 threads, output: 0102030405<br>
+            &bull; <b>Print in Order</b> (LC 1114) &mdash; 3 threads, guarantee first() &rarr; second() &rarr; third()<br>
+            &bull; <b>Building H2O</b> (LC 1117) &mdash; group threads as 2H + 1O before releasing
+        </div>
+    </div>
+    <div class="card-grid">
+        <div class="card cy-c"><div class="card-label cy">Approach 1</div><div class="card-title">Two Semaphores</div><div class="card-desc"><b>fooSem(1)</b> and <b>barSem(0)</b>. foo() acquires fooSem, prints, releases barSem. bar() acquires barSem, prints, releases fooSem.</div></div>
+        <div class="card pk-c"><div class="card-label pk">Approach 2</div><div class="card-title">ReentrantLock + Condition</div><div class="card-desc">Shared boolean <b>fooTurn = true</b>. foo() waits while !fooTurn, prints, sets fooTurn=false, signals. Mirror for bar().</div></div>
+    </div>
+
+    <!-- Q5: Read-Write Lock from Scratch -->
+    <div class="sec-label bl" style="margin-top:36px;">Question 5 &mdash; Design a Read-Write Lock from Scratch</div>
+    <div class="card bl-c" style="margin-bottom:8px;">
+        <div class="card-label bl">Morgan Stanley &bull; Goldman Sachs &bull; JP Morgan</div>
+        <div class="card-title">Implement ReadWriteLock Using Only synchronized / wait-notify</div>
+        <div class="card-desc">
+            Build a lock that allows:<br>
+            &bull; <b>Multiple readers</b> concurrently (shared access)<br>
+            &bull; <b>Only one writer</b> at a time (exclusive access)<br>
+            &bull; <b>No reader while writer is active</b> and vice versa<br><br>
+            Implement: <code><b>acquireReadLock()</b></code>, <code><b>releaseReadLock()</b></code>, <code><b>acquireWriteLock()</b></code>, <code><b>releaseWriteLock()</b></code><br><br>
+            <span class="bl">Follow-ups:</span><br>
+            &bull; How do you prevent <b>writer starvation</b>? (writers keep waiting because readers keep arriving)<br>
+            &bull; How would you add <b>lock downgrading</b>? (writer &rarr; reader without releasing)<br>
+            &bull; Compare with Java&rsquo;s <b>ReentrantReadWriteLock</b> and <b>StampedLock</b>
+        </div>
+    </div>
+    <div class="card-grid">
+        <div class="card gn-c"><div class="card-label gn">Key Insight</div><div class="card-title">Track Active Readers + Writer Flag</div><div class="card-desc">Maintain <b>int readersCount</b> and <b>boolean writerActive</b>. Readers wait if writerActive. Writer waits if readersCount &gt; 0 or writerActive.</div></div>
+        <div class="card rd-c"><div class="card-label rd">Starvation Fix</div><div class="card-title">Add writerWaiting Flag</div><div class="card-desc">When a writer is waiting, <b>new readers must also wait</b>. This prevents the &ldquo;endless reader stream&rdquo; problem.</div></div>
+    </div>
+
+    <!-- Summary -->
+    <div class="callout rd" style="margin-top:36px;">
+        <div class="callout-icon">&#128293;</div>
+        <div class="callout-body">
+            <div class="co-title rd">Quick Recall &mdash; All 5 Questions at a Glance</div>
+            <div class="co-text" style="font-size:14px;line-height:2;">
+                <b>Q1.</b> Print M&times;N Matrix row-by-row with N threads &rarr; <span class="cy">Semaphore Chain</span><br>
+                <b>Q2.</b> Producer-Consumer Bounded Buffer &rarr; <span class="gn">wait/notify</span> or <span class="gn">Lock+Condition</span> or <span class="gn">Semaphore</span><br>
+                <b>Q3.</b> Dining Philosophers (LC 1226) &rarr; <span class="pu">Resource Ordering</span> / Semaphore(N-1)<br>
+                <b>Q4.</b> Print FooBar Alternately (LC 1115) &rarr; <span class="or">Two Semaphores</span><br>
+                <b>Q5.</b> Design ReadWriteLock from Scratch &rarr; <span class="bl">synchronized + readersCount + writerActive</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- FOOTER                                                        -->
+<!-- ============================================================ -->
+<div class="footer">
+    <div class="author">
+        <div class="avatar">AN</div>
+        <div>
+            <div class="author-name">Amaan Nirban</div>
+            <div class="author-tag">Java &bull; DSA &bull; System Design &bull; <span>Concurrency</span></div>
+        </div>
+    </div>
+    <div class="cta-group">
+        <button class="cta save">&#128278; Save this</button>
+        <button class="cta follow">Follow +</button>
+    </div>
+</div>
+
+</div><!-- /page -->
+</body>
+</html>

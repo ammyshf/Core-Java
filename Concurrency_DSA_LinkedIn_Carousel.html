@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Java Concurrency — LinkedIn Carousel | Amaan Nirban</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700;800&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Inter',sans-serif;background:#080810;display:flex;flex-direction:column;align-items:center;gap:40px;padding:40px 0;}
+
+        .card{width:800px;height:800px;background:#0e0f14;position:relative;overflow:hidden;color:#fff;padding:36px 42px;page-break-after:always;display:flex;flex-direction:column;}
+        .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+        .card.accent-cy::before{background:linear-gradient(90deg,#00d4ff,#58a6ff);}
+        .card.accent-gn::before{background:linear-gradient(90deg,#3fb950,#00d4ff);}
+        .card.accent-pu::before{background:linear-gradient(90deg,#a371f7,#ff6bcb);}
+        .card.accent-rd::before{background:linear-gradient(90deg,#ff6b6b,#feca57);}
+        .card.accent-or::before{background:linear-gradient(90deg,#ffa500,#ff6b6b);}
+        .card.accent-yw::before{background:linear-gradient(90deg,#feca57,#3fb950);}
+        .card.accent-fire::before{background:linear-gradient(90deg,#ff416c,#ff4b2b,#feca57,#3fb950,#00d4ff,#a371f7);}
+
+        /* Typography — heavier across the board */
+        .t-hero{font-size:50px;font-weight:900;line-height:1.1;letter-spacing:-1px;}
+        .t-big{font-size:30px;font-weight:900;line-height:1.18;letter-spacing:-0.5px;}
+        .t-mid{font-size:22px;font-weight:900;line-height:1.25;}
+        .t-body{font-size:17px;font-weight:800;line-height:1.6;color:#ccc;}
+        .t-body b{color:#fff;font-weight:900;}
+        .t-sm{font-size:15px;font-weight:800;color:#b0b8c8;line-height:1.55;}
+        .t-sm b{color:#fff;font-weight:900;}
+        .t-label{font-size:12px;font-weight:900;letter-spacing:1.5px;color:#6b7a94;margin-bottom:10px;text-transform:uppercase;}
+
+        /* Colors */
+        .cy{color:#00d4ff;} .gn{color:#3fb950;} .pu{color:#a371f7;} .rd{color:#ff6b6b;} .yw{color:#feca57;} .or{color:#ffa500;} .pk{color:#ff6bcb;} .bl{color:#58a6ff;} .wh{color:#fff;}
+        .grad{background:linear-gradient(90deg,#00d4ff,#a371f7,#ff6bcb);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+        .grad-warm{background:linear-gradient(90deg,#ff6b6b,#feca57,#3fb950);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+        .grad-fire{background:linear-gradient(90deg,#ff416c,#ff4b2b,#feca57);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+
+        /* Pill — compact */
+        .pill{display:inline-block;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:900;letter-spacing:0.5px;}
+        .pill.fire{background:linear-gradient(135deg,#ff416c,#ff4b2b);color:#fff;}
+
+        /* Minimal boxes — content first, no thick borders or colored top bars */
+        .box{background:rgba(255,255,255,0.03);border-radius:12px;padding:18px 20px;border:1px solid rgba(255,255,255,0.06);}
+        .box-title{font-size:17px;font-weight:900;margin-bottom:8px;}
+
+        /* Bullet points */
+        .bp{display:flex;align-items:flex-start;gap:10px;margin-bottom:6px;}
+        .bp:last-child{margin-bottom:0;}
+        .bp-dot{width:7px;height:7px;border-radius:50%;margin-top:7px;flex-shrink:0;}
+        .bp-dot.cy{background:#00d4ff;} .bp-dot.gn{background:#3fb950;} .bp-dot.rd{background:#ff6b6b;} .bp-dot.pu{background:#a371f7;} .bp-dot.yw{background:#feca57;} .bp-dot.or{background:#ffa500;}
+
+        /* Table — bolder */
+        .tbl{width:100%;border-collapse:separate;border-spacing:0;border-radius:10px;overflow:hidden;}
+        .tbl th{background:rgba(255,255,255,0.06);padding:11px 14px;font-size:15px;font-weight:900;text-align:left;border-bottom:1px solid rgba(255,255,255,0.08);color:#ccc;}
+        .tbl td{padding:10px 14px;font-size:15px;font-weight:800;color:#99a0b0;border-bottom:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.015);}
+        .tbl tr:last-child td{border-bottom:none;}
+        .tbl td b{color:#fff;font-weight:900;}
+
+        /* Code — bolder, more readable */
+        .code{background:rgba(0,0,0,0.35);border-radius:10px;padding:16px 20px;font-family:'JetBrains Mono',monospace;font-size:14.5px;line-height:1.75;font-weight:700;color:#f0f0f0;}
+        .kw{color:#ff79c6;font-weight:800;} .fn{color:#8be9fd;font-weight:800;} .cm{color:#6a7180;font-weight:600;font-style:italic;} .num{color:#bd93f9;} .an{color:#50fa7b;font-weight:800;} .str{color:#f1fa8c;}
+
+        /* Flow boxes — lighter styling */
+        .fbox{padding:8px 16px;border-radius:8px;font-size:14px;font-weight:900;text-align:center;}
+        .fbox.cy{background:rgba(0,212,255,0.06);color:#00d4ff;border:1.5px solid rgba(0,212,255,0.15);}
+        .fbox.gn{background:rgba(63,185,80,0.06);color:#3fb950;border:1.5px solid rgba(63,185,80,0.15);}
+        .fbox.rd{background:rgba(255,107,107,0.06);color:#ff6b6b;border:1.5px solid rgba(255,107,107,0.15);}
+        .fbox.yw{background:rgba(254,202,87,0.06);color:#feca57;border:1.5px solid rgba(254,202,87,0.15);}
+        .fbox.pu{background:rgba(163,113,247,0.06);color:#a371f7;border:1.5px solid rgba(163,113,247,0.15);}
+        .fbox.or{background:rgba(255,165,0,0.06);color:#ffa500;border:1.5px solid rgba(255,165,0,0.15);}
+        .fa{color:#555;font-size:18px;font-weight:900;}
+
+        /* Company tags */
+        .co-tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:900;letter-spacing:0.5px;margin-right:4px;margin-bottom:4px;}
+        .co-tag.ms{background:rgba(0,212,255,0.06);color:#00d4ff;border:1px solid rgba(0,212,255,0.15);}
+        .co-tag.amz{background:rgba(255,165,0,0.06);color:#ffa500;border:1px solid rgba(255,165,0,0.15);}
+        .co-tag.ggl{background:rgba(63,185,80,0.06);color:#3fb950;border:1px solid rgba(63,185,80,0.15);}
+        .co-tag.meta{background:rgba(88,166,255,0.06);color:#58a6ff;border:1px solid rgba(88,166,255,0.15);}
+        .co-tag.gs{background:rgba(163,113,247,0.06);color:#a371f7;border:1px solid rgba(163,113,247,0.15);}
+        .co-tag.lc{background:rgba(255,107,203,0.06);color:#ff6bcb;border:1px solid rgba(255,107,203,0.15);}
+
+        /* Problem rows — clean */
+        .prob{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.02);border-radius:10px;padding:14px 18px;border:1px solid rgba(255,255,255,0.05);}
+        .prob-n{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;flex-shrink:0;border:1.5px solid;}
+        .prob-n.cy{background:rgba(0,212,255,0.08);color:#00d4ff;border-color:rgba(0,212,255,0.2);}
+        .prob-n.gn{background:rgba(63,185,80,0.08);color:#3fb950;border-color:rgba(63,185,80,0.2);}
+        .prob-n.pu{background:rgba(163,113,247,0.08);color:#a371f7;border-color:rgba(163,113,247,0.2);}
+        .prob-n.or{background:rgba(255,165,0,0.08);color:#ffa500;border-color:rgba(255,165,0,0.2);}
+        .prob-title{font-size:17px;font-weight:900;color:#f0f4f8;margin-bottom:2px;}
+
+        /* Callout — subtle */
+        .callout{border-radius:10px;padding:12px 18px;font-size:15px;font-weight:800;line-height:1.5;}
+
+        /* Footer */
+        .foot{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);}
+        .foot-left{display:flex;align-items:center;gap:10px;}
+        .foot-av{width:30px;height:30px;background:linear-gradient(135deg,#00d4ff,#a371f7);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;color:#000;}
+        .foot-name{font-size:13px;font-weight:900;}
+        .foot-sub{font-size:10px;color:#555;font-weight:700;}
+        .foot-right{display:flex;gap:8px;}
+        .foot-btn{padding:6px 14px;border-radius:12px;font-weight:800;font-size:11px;border:none;cursor:pointer;}
+        .foot-btn.save{background:rgba(63,185,80,0.08);border:1px solid rgba(63,185,80,0.2);color:#3fb950;}
+        .foot-btn.fol{background:linear-gradient(90deg,#00d4ff,#a371f7);color:#000;}
+        .slide-n{position:absolute;bottom:20px;left:42px;font-size:11px;font-weight:800;color:rgba(255,255,255,0.1);letter-spacing:1px;}
+
+        @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+        @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,65,108,0.4);}50%{box-shadow:0 0 0 12px rgba(255,65,108,0);}}
+        @keyframes slideIn{from{opacity:0;transform:translateX(-16px);}to{opacity:1;transform:translateX(0);}}
+        .anim-hero{opacity:0;animation:fadeUp 0.6s ease-out 0.2s forwards;}
+        .anim-sub{opacity:0;animation:fadeUp 0.5s ease-out 0.5s forwards;}
+        .anim-grid .ag{opacity:0;animation:slideIn 0.4s ease-out forwards;}
+        .anim-grid .ag:nth-child(1){animation-delay:0.8s;}
+        .anim-grid .ag:nth-child(2){animation-delay:1.0s;}
+        .anim-grid .ag:nth-child(3){animation-delay:1.2s;}
+        .anim-grid .ag:nth-child(4){animation-delay:1.4s;}
+        .anim-cta{opacity:0;animation:fadeUp 0.5s ease-out 1.8s forwards;}
+
+        @media print{
+            @page{size:800px 800px;margin:0;}
+            body{padding:0;gap:0;}
+            .card{page-break-after:always;}
+            *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+            .anim-hero,.anim-sub,.anim-grid .ag,.anim-cta{opacity:1!important;animation:none!important;}
+        }
+    </style>
+</head>
+<body>
+
+
+<!-- ====================================================== -->
+<!-- SLIDE 1: HERO HOOK                                      -->
+<!-- ====================================================== -->
+<div class="card accent-fire">
+    <div class="slide-n">01 / 07</div>
+
+    <div class="anim-hero" style="margin-bottom:18px;">
+        <span class="pill fire" style="font-size:13px;padding:7px 20px;letter-spacing:1.2px;animation:pulse 2s ease-in-out infinite;">MOST MISUNDERSTOOD IN JAVA</span>
+    </div>
+
+    <div class="anim-hero t-hero" style="margin-bottom:12px;">
+        &ldquo;synchronized locks<br>
+        the <span class="rd">method</span>, right?&rdquo;<br>
+        <span class="grad" style="font-size:44px;">Wrong.</span>
+    </div>
+
+    <div class="anim-sub t-body" style="margin-bottom:28px;max-width:640px;">
+        <b>90% of candidates</b> get this wrong in interviews.<br>
+        It doesn&rsquo;t lock the method. It doesn&rsquo;t lock the class.<br>
+        It locks the <span class="cy"><b>object</b></span>. And everything changes once you understand that.
+    </div>
+
+    <div class="anim-grid" style="display:flex;flex-direction:column;gap:8px;margin-bottom:22px;">
+        <div class="ag" style="display:flex;align-items:center;gap:14px;padding:12px 18px;border-left:3px solid #00d4ff;background:rgba(0,212,255,0.03);border-radius:0 8px 8px 0;">
+            <div style="font-size:18px;font-weight:900;color:#00d4ff;width:28px;text-align:center;">01</div>
+            <div><span style="font-size:16px;font-weight:900;color:#e8ecf2;">The Mutex Misconception</span> <span class="t-sm">&mdash; What synchronized ACTUALLY locks</span></div>
+        </div>
+        <div class="ag" style="display:flex;align-items:center;gap:14px;padding:12px 18px;border-left:3px solid #3fb950;background:rgba(63,185,80,0.03);border-radius:0 8px 8px 0;">
+            <div style="font-size:18px;font-weight:900;color:#3fb950;width:28px;text-align:center;">02</div>
+            <div><span style="font-size:16px;font-weight:900;color:#e8ecf2;">ReentrantLock &mdash; 4 Superpowers</span> <span class="t-sm">&mdash; Why synchronized isn&rsquo;t enough</span></div>
+        </div>
+        <div class="ag" style="display:flex;align-items:center;gap:14px;padding:12px 18px;border-left:3px solid #a371f7;background:rgba(163,113,247,0.03);border-radius:0 8px 8px 0;">
+            <div style="font-size:18px;font-weight:900;color:#a371f7;width:28px;text-align:center;">03</div>
+            <div><span style="font-size:16px;font-weight:900;color:#e8ecf2;">Semaphore, Latch, Barrier</span> <span class="t-sm">&mdash; When to use which</span></div>
+        </div>
+        <div class="ag" style="display:flex;align-items:center;gap:14px;padding:12px 18px;border-left:3px solid #ff6b6b;background:rgba(255,107,107,0.03);border-radius:0 8px 8px 0;">
+            <div style="font-size:18px;font-weight:900;color:#ff6b6b;width:28px;text-align:center;">04</div>
+            <div><span style="font-size:16px;font-weight:900;color:#e8ecf2;">5 DSA Problems from MY Interviews</span> <span class="t-sm">&mdash; Amazon, MS, Google</span></div>
+        </div>
+    </div>
+
+    <div class="anim-cta" style="text-align:center;">
+        <div style="font-size:18px;font-weight:900;">Swipe &rarr; to <span class="grad">unlearn the wrong &amp; learn it right</span></div>
+    </div>
+
+    <div class="foot">
+        <div class="foot-left"><div class="foot-av">AN</div><div><div class="foot-name">Amaan Nirban</div><div class="foot-sub">Java &bull; Concurrency &bull; DSA</div></div></div>
+        <div class="foot-right"><span class="foot-btn save">&#128278; Save</span><span class="foot-btn fol">Follow +</span></div>
+    </div>
+</div>
+
+
+<!-- ====================================================== -->
+<!-- SLIDE 2: THE MUTEX MISCONCEPTION                        -->
+<!-- ====================================================== -->
+<div class="card accent-cy">
+    <div class="slide-n">02 / 07</div>
+
+    <div class="t-label cy">CONCEPT 1</div>
+    <div class="t-big" style="margin-bottom:4px;">synchronized locks the <span class="rd">???</span></div>
+    <div class="t-sm" style="margin-bottom:16px;">Let&rsquo;s kill the misconception once and for all.</div>
+
+    <!-- Wrong vs Right — no decorative top bars -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+        <div class="box">
+            <div class="box-title rd" style="font-size:18px;">&#10060; What most people think</div>
+            <div class="bp"><div class="bp-dot rd"></div><div class="t-sm">&ldquo;It locks the <b>method</b>&rdquo;</div></div>
+            <div class="bp"><div class="bp-dot rd"></div><div class="t-sm">&ldquo;It locks the <b>class</b>&rdquo;</div></div>
+            <div class="bp"><div class="bp-dot rd"></div><div class="t-sm">&ldquo;It locks the <b>code block</b>&rdquo;</div></div>
+            <div style="margin-top:12px;font-size:15px;font-weight:900;color:#ff6b6b;">All three are WRONG.</div>
+        </div>
+        <div class="box">
+            <div class="box-title gn" style="font-size:18px;">&#9989; What it actually does</div>
+            <div style="font-size:16px;font-weight:900;color:#e2e8f0;line-height:1.6;margin-bottom:8px;">
+                synchronized acquires a<br>
+                <span style="font-size:24px;color:#3fb950;">mutex lock on an OBJECT</span>
+            </div>
+            <div class="t-sm" style="line-height:1.7;">
+                &bull; <b>Method-level:</b> locks <span class="cy">this</span> (the instance)<br>
+                &bull; <b>Static method:</b> locks <span class="pu">ClassName.class</span><br>
+                &bull; <b>Block-level:</b> locks <span class="gn">whatever object you pass</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visual proof — clean, no heavy container -->
+    <div class="t-label" style="margin-top:4px;">SAME OBJECT = SAME LOCK = BLOCKED</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:14px;">
+        <div class="fbox cy" style="padding:10px 18px;">Thread A<br><b>methodA()</b></div>
+        <div style="text-align:center;">
+            <div style="font-size:13px;font-weight:900;color:#888;">both lock</div>
+            <div class="fa">&darr;</div>
+        </div>
+        <div style="padding:14px 24px;text-align:center;">
+            <div style="font-size:32px;">&#128274;</div>
+            <div style="font-size:20px;font-weight:900;color:#ff6b6b;">this</div>
+            <div style="font-size:12px;font-weight:800;color:#888;">same object</div>
+        </div>
+        <div style="text-align:center;">
+            <div style="font-size:13px;font-weight:900;color:#888;">both lock</div>
+            <div class="fa">&darr;</div>
+        </div>
+        <div class="fbox pu" style="padding:10px 18px;">Thread B<br><b>methodB()</b></div>
+    </div>
+    <div style="text-align:center;font-size:16px;font-weight:900;color:#ff6b6b;margin-bottom:14px;">&#9888; Thread B is BLOCKED even though it calls a DIFFERENT method!</div>
+
+    <!-- Fix -->
+    <div class="t-label gn">FIX: USE DIFFERENT LOCK OBJECTS</div>
+    <div class="code" style="flex:1;display:flex;align-items:center;">
+        <div style="width:100%;">
+<span class="kw">private final</span> Object <span class="fn">lockA</span> = <span class="kw">new</span> Object();
+<span class="kw">private final</span> Object <span class="fn">lockB</span> = <span class="kw">new</span> Object();
+
+<span class="kw">void</span> <span class="fn">methodA</span>() { <span class="kw">synchronized</span>(<span class="fn">lockA</span>) { ... } }  <span class="cm">// independent!</span>
+<span class="kw">void</span> <span class="fn">methodB</span>() { <span class="kw">synchronized</span>(<span class="fn">lockB</span>) { ... } }  <span class="cm">// runs in parallel</span></div>
+    </div>
+
+    <div class="foot">
+        <div class="foot-left"><div class="foot-av">AN</div><div><div class="foot-name">Amaan Nirban</div><div class="foot-sub">Java &bull; Concurrency &bull; DSA</div></div></div>
+        <div class="foot-right"><span class="foot-btn save">&#128278; Save</span><span class="foot-btn fol">Follow +</span></div>
+    </div>
+</div>
+
+
+<!-- ====================================================== -->
+<!-- SLIDE 3: WAIT / NOTIFY — THE MONITOR MODEL              -->
+<!-- ====================================================== -->
+<div class="card accent-rd">
+    <div class="slide-n">03 / 07</div>
+
+    <div class="t-label rd">CONCEPT 2</div>
+    <div class="t-big" style="margin-bottom:4px;">wait() / notify() &mdash; <span class="rd">The Monitor</span></div>
+    <div class="t-sm" style="margin-bottom:14px;">Every Java object is a <b>monitor</b> with 3 parts. This is how threads talk to each other.</div>
+
+    <!-- Monitor visual — cleaner, less borders -->
+    <div class="t-label" style="text-align:center;">JAVA MONITOR MODEL</div>
+    <div style="display:flex;align-items:stretch;gap:10px;margin-bottom:16px;">
+        <div style="flex:1;text-align:center;padding:14px;">
+            <div style="font-size:16px;font-weight:900;color:#ffa500;margin-bottom:6px;">Entry Set</div>
+            <div style="font-size:14px;font-weight:800;color:#99a0b0;margin-bottom:8px;">Waiting to <b>acquire</b> lock</div>
+            <div style="display:flex;gap:6px;justify-content:center;">
+                <div class="fbox or" style="font-size:13px;padding:6px 14px;">T1</div>
+                <div class="fbox or" style="font-size:13px;padding:6px 14px;">T2</div>
+            </div>
+        </div>
+        <div style="display:flex;align-items:center;"><div class="fa" style="font-size:24px;">&rarr;</div></div>
+        <div style="flex:1;text-align:center;padding:14px;background:rgba(63,185,80,0.04);border-radius:12px;border:1px solid rgba(63,185,80,0.15);">
+            <div style="font-size:16px;font-weight:900;color:#3fb950;margin-bottom:6px;">Lock Owner</div>
+            <div style="font-size:14px;font-weight:800;color:#99a0b0;margin-bottom:6px;">Currently <b>holds</b> the lock</div>
+            <div style="font-size:30px;">&#128274;</div>
+            <div style="font-size:15px;font-weight:900;color:#3fb950;margin-top:4px;">T3 &#9989;</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;">
+            <div style="font-size:12px;font-weight:900;color:#ff6b6b;">wait()</div>
+            <div class="fa" style="font-size:24px;">&rarr;</div>
+            <div class="fa" style="font-size:24px;">&larr;</div>
+            <div style="font-size:12px;font-weight:900;color:#3fb950;">notify()</div>
+        </div>
+        <div style="flex:1;text-align:center;padding:14px;">
+            <div style="font-size:16px;font-weight:900;color:#a371f7;margin-bottom:6px;">Wait Set</div>
+            <div style="font-size:14px;font-weight:800;color:#99a0b0;margin-bottom:8px;">Called <b>wait()</b>, released lock</div>
+            <div style="display:flex;gap:6px;justify-content:center;">
+                <div class="fbox pu" style="font-size:13px;padding:6px 14px;">T4</div>
+                <div class="fbox pu" style="font-size:13px;padding:6px 14px;">T5</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3 Rules — bold text, minimal boxes -->
+    <div class="t-label">THREE GOLDEN RULES</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div class="box" style="text-align:center;">
+            <div style="font-size:17px;font-weight:900;color:#ff6b6b;margin-bottom:6px;">Rule 1</div>
+            <div class="t-sm">wait() / notify() <b>MUST</b> be inside <span class="rd">synchronized</span></div>
+        </div>
+        <div class="box" style="text-align:center;">
+            <div style="font-size:17px;font-weight:900;color:#feca57;margin-bottom:6px;">Rule 2</div>
+            <div class="t-sm">Always <b>while(!condition)</b> not <span class="rd">if</span> &mdash; spurious wakeups!</div>
+        </div>
+        <div class="box" style="text-align:center;">
+            <div style="font-size:17px;font-weight:900;color:#3fb950;margin-bottom:6px;">Rule 3</div>
+            <div class="t-sm">wait() <b>releases the lock</b>. Re-acquires on wakeup.</div>
+        </div>
+    </div>
+
+    <!-- Code template -->
+    <div class="code" style="flex:1;display:flex;align-items:center;">
+        <div style="width:100%;">
+<span class="kw">synchronized</span>(lock) {
+    <span class="kw">while</span>(!condition) {       <span class="cm">// while, NOT if!</span>
+        lock.<span class="fn">wait</span>();            <span class="cm">// releases lock + sleeps</span>
+    }
+    <span class="cm">// condition is true, do work</span>
+    lock.<span class="fn">notifyAll</span>();           <span class="cm">// wake up ALL waiters</span>
+}</div>
+    </div>
+
+    <div class="foot">
+        <div class="foot-left"><div class="foot-av">AN</div><div><div class="foot-name">Amaan Nirban</div><div class="foot-sub">Java &bull; Concurrency &bull; DSA</div></div></div>
+        <div class="foot-right"><span class="foot-btn save">&#128278; Save</span><span class="foot-btn fol">Follow +</span></div>
+    </div>
+</div>
+
+
+<!-- ====================================================== -->
+<!-- SLIDE 4: REENTRANTLOCK — 4 SUPERPOWERS                  -->
+<!-- ====================================================== -->
+<div class="card accent-gn">
+    <div class="slide-n">04 / 07</div>
+
+    <div class="t-label gn">CONCEPT 3</div>
+    <div class="t-big" style="margin-bottom:4px;"><span class="gn">ReentrantLock</span> &mdash; 4 Superpowers</div>
+    <div class="t-sm" style="margin-bottom:14px;">Everything <b>synchronized</b> can&rsquo;t do. This is what interviewers want you to know.</div>
+
+    <!-- 4 powers — text-heavy, minimal box chrome -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div class="box">
+            <div style="font-size:17px;font-weight:900;color:#00d4ff;margin-bottom:6px;">1. tryLock(timeout)</div>
+            <div class="t-sm" style="line-height:1.6;">
+                Try to acquire for <b>N seconds</b>.<br>
+                Fail? Do something else. Don&rsquo;t block forever.<br>
+                <span class="cy">synchronized blocks FOREVER.</span>
+            </div>
+        </div>
+        <div class="box">
+            <div style="font-size:17px;font-weight:900;color:#a371f7;margin-bottom:6px;">2. Fairness</div>
+            <div class="t-sm" style="line-height:1.6;">
+                <b>new ReentrantLock(true)</b><br>
+                Longest-waiting thread goes first.<br>
+                <span class="pu">synchronized has NO fairness guarantee.</span>
+            </div>
+        </div>
+        <div class="box">
+            <div style="font-size:17px;font-weight:900;color:#ffa500;margin-bottom:6px;">3. Multiple Conditions</div>
+            <div class="t-sm" style="line-height:1.6;">
+                <b>notFull.await()</b> / <b>notEmpty.signal()</b><br>
+                Separate wait-sets per condition.<br>
+                <span class="or">synchronized has only ONE wait-set.</span>
+            </div>
+        </div>
+        <div class="box">
+            <div style="font-size:17px;font-weight:900;color:#ff6b6b;margin-bottom:6px;">4. lockInterruptibly()</div>
+            <div class="t-sm" style="line-height:1.6;">
+                Waiting thread can be <b>interrupted</b>.<br>
+                Break out of a deadlock gracefully.<br>
+                <span class="rd">synchronized = uninterruptible.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Code pattern -->
+    <div class="t-label">TEMPLATE &mdash; ALWAYS USE TRY-FINALLY</div>
+    <div class="code" style="margin-bottom:10px;">
+Lock lock = <span class="kw">new</span> <span class="fn">ReentrantLock</span>();
+lock.<span class="fn">lock</span>();
+<span class="kw">try</span> {
+    <span class="cm">// critical section</span>
+} <span class="kw">finally</span> {
+    lock.<span class="fn">unlock</span>();   <span class="cm">// ALWAYS in finally! Else = permanent lock</span>
+}</div>
+
+    <div class="callout" style="background:rgba(255,107,107,0.04);border:1px solid rgba(255,107,107,0.1);color:#ff6b6b;">
+        &#9888; Forget the finally block = <b>lock is held forever</b>. #1 interview mistake.
+    </div>
+
+    <div class="foot">
+        <div class="foot-left"><div class="foot-av">AN</div><div><div class="foot-name">Amaan Nirban</div><div class="foot-sub">Java &bull; Concurrency &bull; DSA</div></div></div>
+        <div class="foot-right"><span class="foot-btn save">&#128278; Save</span><span class="foot-btn fol">Follow +</span></div>
+    </div>
+</div>
+
+
+<!-- ====================================================== -->
+<!-- SLIDE 5: SEMAPHORE                                      -->
+<!-- ====================================================== -->
+<div class="card accent-pu">
+    <div class="slide-n">05 / 07</div>
+
+    <div class="t-label pu">CONCEPT 4</div>
+    <div class="t-big" style="margin-bottom:4px;"><span class="pu">Semaphore</span> &mdash; Permit-Based Control</div>
+    <div class="t-sm" style="margin-bottom:14px;">Not a lock. It&rsquo;s a <b>bouncer</b>. Only N threads allowed inside at once.</div>
+
+    <!-- Bouncer analogy — cleaner layout -->
+    <div class="t-label" style="text-align:center;">NIGHTCLUB ANALOGY &mdash; SEMAPHORE(3)</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:16px;">
+        <div style="text-align:center;">
+            <div style="font-size:13px;font-weight:900;color:#ff6b6b;margin-bottom:6px;">WAITING</div>
+            <div class="fbox rd" style="padding:8px 14px;margin-bottom:4px;">&#128100; T4</div>
+            <div class="fbox rd" style="padding:8px 14px;">&#128100; T5</div>
+        </div>
+        <div style="text-align:center;">
+            <div style="font-size:13px;font-weight:900;color:#feca57;">acquire()</div>
+            <div style="font-size:28px;color:#555;font-weight:900;">&rarr;</div>
+            <div style="font-size:12px;font-weight:800;color:#99a0b0;">blocks if 0</div>
+        </div>
+        <div style="text-align:center;">
+            <div style="font-size:34px;">&#128170;</div>
+            <div style="font-size:18px;font-weight:900;color:#feca57;">Bouncer</div>
+            <div style="font-size:26px;font-weight:900;color:#3fb950;">permits = 3</div>
+        </div>
+        <div style="text-align:center;">
+            <div style="font-size:13px;font-weight:900;color:#3fb950;">inside!</div>
+            <div style="font-size:28px;color:#555;font-weight:900;">&rarr;</div>
+            <div style="font-size:12px;font-weight:800;color:#99a0b0;">release()</div>
+        </div>
+        <div style="text-align:center;">
+            <div style="font-size:13px;font-weight:900;color:#3fb950;margin-bottom:6px;">INSIDE</div>
+            <div class="fbox gn" style="padding:8px 14px;margin-bottom:4px;">&#128100; T1</div>
+            <div class="fbox gn" style="padding:8px 14px;margin-bottom:4px;">&#128100; T2</div>
+            <div class="fbox gn" style="padding:8px 14px;">&#128100; T3</div>
+        </div>
+    </div>
+
+    <!-- Mutex vs Semaphore — bold text comparison -->
+    <div class="t-label">MUTEX vs SEMAPHORE</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+        <div class="box">
+            <div style="font-size:17px;font-weight:900;color:#ff6b6b;margin-bottom:8px;">&#128274; Mutex / Lock</div>
+            <div class="bp"><div class="bp-dot rd"></div><div class="t-sm"><b>1 thread</b> at a time</div></div>
+            <div class="bp"><div class="bp-dot rd"></div><div class="t-sm">Has <b>ownership</b> &mdash; only owner unlocks</div></div>
+            <div class="bp"><div class="bp-dot rd"></div><div class="t-sm"><b>Reentrant</b> &mdash; same thread can re-lock</div></div>
+        </div>
+        <div class="box">
+            <div style="font-size:17px;font-weight:900;color:#a371f7;margin-bottom:8px;">&#127915; Semaphore</div>
+            <div class="bp"><div class="bp-dot pu"></div><div class="t-sm"><b>N threads</b> at a time</div></div>
+            <div class="bp"><div class="bp-dot pu"></div><div class="t-sm"><b>No ownership</b> &mdash; anyone can release</div></div>
+            <div class="bp"><div class="bp-dot pu"></div><div class="t-sm"><b>Not reentrant</b> &mdash; acquire again = -1 permit</div></div>
+        </div>
+    </div>
+
+    <div class="callout" style="background:rgba(254,202,87,0.04);border:1px solid rgba(254,202,87,0.1);color:#feca57;font-size:16px;">
+        &#128161; Semaphore(1) &#8800; Mutex! &mdash; No ownership, no reentrancy. <b>Interview trap!</b>
+    </div>
+
+    <div class="foot">
+        <div class="foot-left"><div class="foot-av">AN</div><div><div class="foot-name">Amaan Nirban</div><div class="foot-sub">Java &bull; Concurrency &bull; DSA</div></div></div>
+        <div class="foot-right"><span class="foot-btn save">&#128278; Save</span><span class="foot-btn fol">Follow +</span></div>
+    </div>
+</div>
+
+
+<!-- ====================================================== -->
+<!-- SLIDE 6: LATCH vs BARRIER                               -->
+<!-- ====================================================== -->
+<div class="card accent-yw">
+    <div class="slide-n">06 / 07</div>
+
+    <div class="t-label yw">CONCEPT 5</div>
+    <div class="t-big" style="margin-bottom:4px;"><span class="yw">CountDownLatch</span> vs <span class="pk">CyclicBarrier</span></div>
+    <div class="t-sm" style="margin-bottom:14px;">Both make threads wait. But they work <b>completely differently</b>.</div>
+
+    <!-- Side by side — text-focused, less fbox noise -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+        <div class="box">
+            <div style="font-size:19px;font-weight:900;color:#feca57;margin-bottom:6px;">CountDownLatch(3)</div>
+            <div class="t-sm" style="margin-bottom:10px;">&ldquo;I&rsquo;ll wait until <b>3 events</b> happen&rdquo;</div>
+            <div style="font-size:15px;font-weight:800;color:#c0c8d8;line-height:2;">
+                Worker 1 &rarr; countDown() &rarr; <span class="yw">3&rarr;2</span><br>
+                Worker 2 &rarr; countDown() &rarr; <span class="yw">2&rarr;1</span><br>
+                Worker 3 &rarr; countDown() &rarr; <span class="gn">0 &#9989; GO!</span>
+            </div>
+            <div style="margin-top:10px;font-size:15px;font-weight:900;color:#feca57;">Main thread: await()</div>
+            <div style="font-size:13px;font-weight:800;color:#888;">Released when count hits 0</div>
+        </div>
+        <div class="box">
+            <div style="font-size:19px;font-weight:900;color:#ff6bcb;margin-bottom:6px;">CyclicBarrier(3)</div>
+            <div class="t-sm" style="margin-bottom:10px;">&ldquo;<b>ALL 3</b> of us wait for each other&rdquo;</div>
+            <div style="font-size:15px;font-weight:800;color:#c0c8d8;line-height:2;">
+                Thread 1 &rarr; await() &rarr; <span class="rd">&#9203; waiting&hellip;</span><br>
+                Thread 2 &rarr; await() &rarr; <span class="rd">&#9203; waiting&hellip;</span><br>
+                Thread 3 &rarr; await() &rarr; <span class="gn">&#128165; ALL GO!</span>
+            </div>
+            <div style="margin-top:10px;font-size:15px;font-weight:900;color:#ff6bcb;">All threads rendezvous</div>
+            <div style="font-size:13px;font-weight:800;color:#888;">Resets &amp; can be used again!</div>
+        </div>
+    </div>
+
+    <!-- Table — bigger, bolder -->
+    <table class="tbl" style="margin-bottom:12px;">
+        <tr>
+            <th style="width:150px;">Feature</th>
+            <th><span class="yw">CountDownLatch</span></th>
+            <th><span class="pk">CyclicBarrier</span></th>
+        </tr>
+        <tr><td><b>Who waits?</b></td><td><b>1 thread</b> awaits, N count down</td><td><b>All N</b> wait for each other</td></tr>
+        <tr><td><b>Reusable?</b></td><td><b class="rd">No</b> &mdash; one shot</td><td><b class="gn">Yes</b> &mdash; auto-resets</td></tr>
+        <tr><td><b>Action on trip?</b></td><td>No</td><td><b class="gn">Yes</b> &mdash; Runnable in constructor</td></tr>
+        <tr><td><b>Use case</b></td><td>Service startup, test sync</td><td>Phased computation, gaming</td></tr>
+    </table>
+
+    <div class="callout" style="background:rgba(63,185,80,0.04);border:1px solid rgba(63,185,80,0.1);color:#3fb950;font-size:16px;">
+        &#128161; Latch = &ldquo;gate opens once&rdquo; &nbsp;&bull;&nbsp; Barrier = &ldquo;everyone arrives, gate opens, repeat&rdquo;
+    </div>
+
+    <div class="foot">
+        <div class="foot-left"><div class="foot-av">AN</div><div><div class="foot-name">Amaan Nirban</div><div class="foot-sub">Java &bull; Concurrency &bull; DSA</div></div></div>
+        <div class="foot-right"><span class="foot-btn save">&#128278; Save</span><span class="foot-btn fol">Follow +</span></div>
+    </div>
+</div>
+
+
+<!-- ====================================================== -->
+<!-- SLIDE 7: PROBLEMS TEASER + CTA                          -->
+<!-- ====================================================== -->
+<div class="card accent-fire">
+    <div class="slide-n">07 / 07</div>
+
+    <div class="t-label rd" style="letter-spacing:2px;">ASKED IN MY DSA ROUNDS</div>
+    <div class="t-big" style="margin-bottom:4px;">Now try <span class="grad-fire">these problems</span>.</div>
+    <div class="t-sm" style="margin-bottom:16px;">These were asked to me in actual interviews. Can you solve them?</div>
+
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+        <div class="prob">
+            <div class="prob-n cy">1</div>
+            <div>
+                <div class="prob-title">Print M&times;N Matrix Row-by-Row Using N Threads</div>
+                <div style="font-size:14px;font-weight:800;color:#99a0b0;">Each thread owns one column. Strict row ordering.</div>
+                <div style="margin-top:4px;"><span class="co-tag amz">AMAZON</span><span class="co-tag gs">GOLDMAN SACHS</span><span class="co-tag ms">MORGAN STANLEY</span></div>
+            </div>
+        </div>
+        <div class="prob">
+            <div class="prob-n gn">2</div>
+            <div>
+                <div class="prob-title">Producer-Consumer Bounded Buffer</div>
+                <div style="font-size:14px;font-weight:800;color:#99a0b0;">Thread-safe BlockingQueue. Solve it 3 different ways.</div>
+                <div style="margin-top:4px;"><span class="co-tag ms">MORGAN STANLEY</span><span class="co-tag ggl">GOOGLE</span><span class="co-tag amz">UBER</span></div>
+            </div>
+        </div>
+        <div class="prob">
+            <div class="prob-n pu">3</div>
+            <div>
+                <div class="prob-title">Dining Philosophers &mdash; No Deadlock, No Starvation</div>
+                <div style="font-size:14px;font-weight:800;color:#99a0b0;">5 philosophers, 5 forks. 3 approaches expected.</div>
+                <div style="margin-top:4px;"><span class="co-tag meta">MICROSOFT</span><span class="co-tag amz">AMAZON</span><span class="co-tag lc">LC 1226</span></div>
+            </div>
+        </div>
+        <div class="prob">
+            <div class="prob-n or">4</div>
+            <div>
+                <div class="prob-title">Print FooBar Alternately + Zero Even Odd + H2O</div>
+                <div style="font-size:14px;font-weight:800;color:#99a0b0;">Thread ordering family &mdash; all use the same Semaphore pattern.</div>
+                <div style="margin-top:4px;"><span class="co-tag lc">LC 1115</span><span class="co-tag lc">LC 1116</span><span class="co-tag lc">LC 1117</span><span class="co-tag lc">LC 1114</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA — clean, text-dominant -->
+    <div style="text-align:center;flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 20px;">
+        <div style="font-size:26px;font-weight:900;color:#fff;margin-bottom:8px;">Want <span class="grad-fire">solutions + template code</span>?</div>
+        <div style="font-size:16px;font-weight:800;color:#99a0b0;margin-bottom:12px;">
+            Full deep-dive guide with visuals, code templates, and cheat sheet for<br>
+            synchronized &bull; ReentrantLock &bull; Semaphore &bull; StampedLock &bull; Latch &bull; Barrier
+        </div>
+        <div style="font-size:22px;font-weight:900;color:#ff6b6b;">&#128293; Link in the comments!</div>
+        <div style="font-size:15px;font-weight:800;color:#6b7a94;margin-top:6px;">Comment &ldquo;CONCURRENCY&rdquo; if this helped you</div>
+    </div>
+
+    <div class="foot">
+        <div class="foot-left"><div class="foot-av">AN</div><div><div class="foot-name">Amaan Nirban</div><div class="foot-sub">Java &bull; Concurrency &bull; DSA</div></div></div>
+        <div class="foot-right"><span class="foot-btn save">&#128278; Save</span><span class="foot-btn fol">Follow +</span></div>
+    </div>
+</div>
+
+
+</body>
+</html>
