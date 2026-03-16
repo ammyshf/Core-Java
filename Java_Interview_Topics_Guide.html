@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Interview Topics — Ranked by Importance | Amaan Nirban</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box;}
+        html{scroll-behavior:smooth;}
+        body{font-family:'Inter',sans-serif;background:#08090e;color:#e2e8f0;display:flex;flex-direction:column;align-items:center;padding:40px 20px;line-height:1.6;}
+        .page{width:960px;max-width:100%;background:#0f1117;border-radius:24px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);box-shadow:0 0 100px rgba(0,120,255,0.06),0 0 40px rgba(0,0,0,0.5);}
+
+        /* ===== HERO ===== */
+        .hero{padding:56px 52px 44px;text-align:center;position:relative;background:linear-gradient(180deg,rgba(0,180,255,0.06) 0%,transparent 100%);border-bottom:1px solid rgba(255,255,255,0.06);}
+        .hero::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#00d4ff,#a371f7,#ff6bcb,#feca57);border-radius:24px 24px 0 0;}
+        .badge{position:absolute;top:22px;right:22px;background:linear-gradient(135deg,#ff416c,#ff4b2b);color:#fff;padding:8px 18px;border-radius:20px;font-weight:900;font-size:11px;letter-spacing:1.5px;box-shadow:0 4px 24px rgba(255,65,108,0.4);text-transform:uppercase;}
+        .hero h1{font-size:46px;font-weight:900;line-height:1.1;margin-bottom:12px;letter-spacing:-0.5px;}
+        .grad{background:linear-gradient(90deg,#00d4ff,#a371f7,#ff6bcb);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+        .grad-warm{background:linear-gradient(90deg,#ff6b6b,#feca57,#3fb950);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+        .hero p{font-size:16px;font-weight:600;color:#8892a8;line-height:1.65;max-width:680px;margin:0 auto;}
+        .hero p b{color:#d1d9e6;font-weight:800;}
+
+        /* ===== TOC ===== */
+        .toc{padding:28px 52px;border-bottom:1px solid rgba(255,255,255,0.06);background:rgba(0,0,0,0.2);}
+        .toc-title{font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:#4a5568;margin-bottom:16px;}
+        .toc-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;}
+        .toc-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.02);border-radius:10px;border:1px solid rgba(255,255,255,0.05);font-size:12px;font-weight:700;color:#8892a8;transition:all 0.2s;text-decoration:none;}
+        .toc-item:hover{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.1);color:#c0c8d8;}
+        .toc-n{width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;flex-shrink:0;}
+        .toc-n.cy{background:rgba(0,212,255,0.15);color:#00d4ff;} .toc-n.gn{background:rgba(63,185,80,0.15);color:#3fb950;} .toc-n.pu{background:rgba(163,113,247,0.15);color:#a371f7;} .toc-n.rd{background:rgba(255,107,107,0.15);color:#ff6b6b;} .toc-n.yw{background:rgba(254,202,87,0.15);color:#feca57;} .toc-n.bl{background:rgba(88,166,255,0.15);color:#58a6ff;} .toc-n.pk{background:rgba(255,107,203,0.15);color:#ff6bcb;} .toc-n.or{background:rgba(255,165,0,0.15);color:#ffa500;}
+
+        /* ===== TIER BANNER ===== */
+        .tier-banner{padding:18px 52px;display:flex;align-items:center;gap:18px;border-bottom:1px solid rgba(255,255,255,0.05);}
+        .tier-badge{padding:7px 20px;border-radius:20px;font-size:11px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;}
+        .tier-badge.t1{background:linear-gradient(135deg,rgba(255,65,108,0.2),rgba(255,75,43,0.2));color:#ff6b6b;border:1.5px solid rgba(255,107,107,0.35);}
+        .tier-badge.t2{background:linear-gradient(135deg,rgba(254,202,87,0.15),rgba(255,165,0,0.15));color:#feca57;border:1.5px solid rgba(254,202,87,0.35);}
+        .tier-badge.t3{background:linear-gradient(135deg,rgba(0,212,255,0.12),rgba(88,166,255,0.12));color:#00d4ff;border:1.5px solid rgba(0,212,255,0.3);}
+        .tier-badge.t4{background:linear-gradient(135deg,rgba(63,185,80,0.12),rgba(0,212,255,0.12));color:#3fb950;border:1.5px solid rgba(63,185,80,0.3);}
+        .tier-info{font-size:13.5px;font-weight:700;color:#6b7a94;}
+        .tier-info b{color:#c0c8d8;}
+
+        /* ===== SECTIONS ===== */
+        .sec{padding:44px 52px;border-bottom:1px solid rgba(255,255,255,0.05);position:relative;}
+        .sec:last-of-type{border-bottom:none;}
+        .sec-h{display:flex;align-items:center;gap:16px;margin-bottom:10px;}
+        .sec-n{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:19px;flex-shrink:0;}
+        .sec-t{font-size:26px;font-weight:900;letter-spacing:-0.3px;}
+        .sec-sub{font-size:14px;font-weight:600;color:#6b7a94;margin-top:3px;}
+        .sec-intro{font-size:14px;font-weight:600;color:#8892a8;line-height:1.65;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.05);}
+        .sec-intro b{color:#d1d9e6;font-weight:800;}
+
+        .th-rd .sec-n{background:rgba(255,107,107,0.12);color:#ff6b6b;border:2px solid rgba(255,107,107,0.3);box-shadow:0 0 20px rgba(255,107,107,0.1);}
+        .th-rd .sec-t{color:#ff6b6b;}
+        .th-yw .sec-n{background:rgba(254,202,87,0.12);color:#feca57;border:2px solid rgba(254,202,87,0.3);box-shadow:0 0 20px rgba(254,202,87,0.1);}
+        .th-yw .sec-t{color:#feca57;}
+        .th-cy .sec-n{background:rgba(0,212,255,0.12);color:#00d4ff;border:2px solid rgba(0,212,255,0.3);box-shadow:0 0 20px rgba(0,212,255,0.1);}
+        .th-cy .sec-t{color:#00d4ff;}
+        .th-gn .sec-n{background:rgba(63,185,80,0.12);color:#3fb950;border:2px solid rgba(63,185,80,0.3);box-shadow:0 0 20px rgba(63,185,80,0.1);}
+        .th-gn .sec-t{color:#3fb950;}
+
+        /* Color helpers */
+        .cy{color:#22d3ee;font-weight:800;} .gn{color:#4ade80;font-weight:800;} .pu{color:#a78bfa;font-weight:800;} .rd{color:#f87171;font-weight:800;} .yw{color:#fbbf24;font-weight:800;} .or{color:#fb923c;font-weight:800;} .pk{color:#f472b6;font-weight:800;} .bl{color:#60a5fa;font-weight:800;} .wh{color:#fff;font-weight:900;}
+
+        /* ===== TOPIC CARDS ===== */
+        .topic-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0;}
+        .topic-card{border-radius:14px;padding:20px 22px;position:relative;overflow:hidden;}
+        .topic-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+        .topic-card.rd-c{background:rgba(255,107,107,0.04);border:1.5px solid rgba(255,107,107,0.14);}
+        .topic-card.rd-c::before{background:linear-gradient(90deg,#ff6b6b,#feca57);}
+        .topic-card.yw-c{background:rgba(254,202,87,0.04);border:1.5px solid rgba(254,202,87,0.14);}
+        .topic-card.yw-c::before{background:linear-gradient(90deg,#feca57,#ffa500);}
+        .topic-card.cy-c{background:rgba(0,212,255,0.04);border:1.5px solid rgba(0,212,255,0.14);}
+        .topic-card.cy-c::before{background:linear-gradient(90deg,#00d4ff,#58a6ff);}
+        .topic-card.gn-c{background:rgba(63,185,80,0.04);border:1.5px solid rgba(63,185,80,0.14);}
+        .topic-card.gn-c::before{background:linear-gradient(90deg,#3fb950,#00d4ff);}
+        .topic-card.pu-c{background:rgba(163,113,247,0.04);border:1.5px solid rgba(163,113,247,0.14);}
+        .topic-card.pu-c::before{background:linear-gradient(90deg,#a371f7,#ff6bcb);}
+        .topic-card.bl-c{background:rgba(88,166,255,0.04);border:1.5px solid rgba(88,166,255,0.14);}
+        .topic-card.bl-c::before{background:linear-gradient(90deg,#58a6ff,#00d4ff);}
+        .topic-card.or-c{background:rgba(255,165,0,0.04);border:1.5px solid rgba(255,165,0,0.14);}
+        .topic-card.or-c::before{background:linear-gradient(90deg,#ffa500,#ff6b6b);}
+        .topic-card.pk-c{background:rgba(255,107,203,0.04);border:1.5px solid rgba(255,107,203,0.14);}
+        .topic-card.pk-c::before{background:linear-gradient(90deg,#ff6bcb,#a371f7);}
+        .topic-rank{font-size:10px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
+        .topic-title{font-size:16px;font-weight:900;color:#f0f4f8;margin-bottom:6px;}
+        .topic-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+        .tag{font-size:10.5px;font-weight:800;padding:3px 10px;border-radius:6px;letter-spacing:0.3px;}
+        .tag.rd{background:rgba(255,107,107,0.12);color:#f87171;}
+        .tag.yw{background:rgba(254,202,87,0.12);color:#fbbf24;}
+        .tag.cy{background:rgba(0,212,255,0.12);color:#22d3ee;}
+        .tag.gn{background:rgba(63,185,80,0.12);color:#4ade80;}
+        .tag.pu{background:rgba(163,113,247,0.12);color:#a78bfa;}
+        .tag.bl{background:rgba(88,166,255,0.12);color:#60a5fa;}
+        .tag.or{background:rgba(255,165,0,0.12);color:#fb923c;}
+        .tag.pk{background:rgba(255,107,203,0.12);color:#f472b6;}
+        .topic-desc{font-size:13px;font-weight:600;color:#8892a8;line-height:1.6;}
+        .topic-desc b{color:#e2e8f0;font-weight:800;}
+        .topic-subtopics{margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.05);}
+        .sub-list{display:flex;flex-direction:column;gap:4px;margin-top:6px;}
+        .sub-item{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;font-weight:600;color:#8892a8;}
+        .sub-dot{width:5px;height:5px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+        .sub-dot.rd{background:#f87171;} .sub-dot.yw{background:#fbbf24;} .sub-dot.cy{background:#22d3ee;} .sub-dot.gn{background:#4ade80;} .sub-dot.pu{background:#a78bfa;} .sub-dot.bl{background:#60a5fa;} .sub-dot.or{background:#fb923c;} .sub-dot.pk{background:#f472b6;}
+
+        /* ===== IMPORTANCE BAR ===== */
+        .imp-bar-wrap{margin:10px 0 0;}
+        .imp-bar-label{font-size:11px;font-weight:800;letter-spacing:0.5px;color:#6b7a94;margin-bottom:4px;}
+        .imp-bar{height:5px;border-radius:3px;background:rgba(255,255,255,0.06);}
+        .imp-bar-fill{height:100%;border-radius:3px;}
+        .imp-bar-fill.rd{background:linear-gradient(90deg,#ff6b6b,#feca57);}
+        .imp-bar-fill.yw{background:linear-gradient(90deg,#feca57,#ffa500);}
+        .imp-bar-fill.cy{background:linear-gradient(90deg,#00d4ff,#58a6ff);}
+        .imp-bar-fill.gn{background:linear-gradient(90deg,#3fb950,#00d4ff);}
+
+        /* ===== CALLOUT ===== */
+        .callout{border-radius:14px;padding:20px 24px;margin:18px 0;display:flex;align-items:flex-start;gap:16px;}
+        .callout.cy{background:rgba(0,212,255,0.04);border:1.5px solid rgba(0,212,255,0.12);}
+        .callout.pu{background:rgba(163,113,247,0.04);border:1.5px solid rgba(163,113,247,0.12);}
+        .callout.gn{background:rgba(63,185,80,0.04);border:1.5px solid rgba(63,185,80,0.12);}
+        .callout.rd{background:rgba(255,107,107,0.04);border:1.5px solid rgba(255,107,107,0.12);}
+        .callout.yw{background:rgba(254,202,87,0.04);border:1.5px solid rgba(254,202,87,0.12);}
+        .callout-icon{font-size:26px;flex-shrink:0;margin-top:1px;}
+        .callout-body{flex:1;}
+        .co-title{font-size:15px;font-weight:900;margin-bottom:6px;}
+        .co-text{font-size:13.5px;font-weight:600;color:#8892a8;line-height:1.6;}
+        .co-text b{color:#e2e8f0;font-weight:800;}
+
+        /* ===== TABLE ===== */
+        .tbl{width:100%;border-collapse:separate;border-spacing:0;margin:18px 0;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.06);}
+        .tbl th{background:rgba(255,255,255,0.04);padding:14px 18px;font-size:13px;font-weight:900;text-align:left;border-bottom:1px solid rgba(255,255,255,0.06);color:#8892a8;}
+        .tbl td{padding:12px 18px;font-size:13px;font-weight:600;color:#8892a8;border-bottom:1px solid rgba(255,255,255,0.03);background:rgba(0,0,0,0.15);}
+        .tbl tr:last-child td{border-bottom:none;}
+        .tbl td b{color:#e2e8f0;font-weight:800;}
+        .tbl tr:hover td{background:rgba(255,255,255,0.02);}
+
+        /* ===== FOOTER ===== */
+        .footer{padding:28px 52px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,0.06);background:rgba(0,0,0,0.15);}
+        .author{display:flex;align-items:center;gap:16px;}
+        .avatar{width:50px;height:50px;background:linear-gradient(135deg,#00d4ff,#a371f7);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:17px;color:#000;}
+        .author-name{font-size:18px;font-weight:900;color:#f0f4f8;}
+        .author-tag{font-size:12px;font-weight:700;color:#6b7a94;}
+        .author-tag span{color:#4ade80;}
+        .cta-group{display:flex;gap:10px;}
+        .cta{padding:12px 26px;border-radius:22px;font-weight:900;font-size:13px;border:none;cursor:pointer;transition:transform 0.15s;}
+        .cta:hover{transform:translateY(-1px);}
+        .cta.save{background:rgba(63,185,80,0.1);border:2px solid rgba(63,185,80,0.25);color:#4ade80;}
+        .cta.follow{background:linear-gradient(90deg,#00d4ff,#a371f7);color:#000;}
+
+        @media print{body{padding:0;}.page{width:100%;border:none;border-radius:0;box-shadow:none;}*{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+    </style>
+</head>
+<body>
+<div class="page">
+
+    <!-- ===== HERO ===== -->
+    <div class="hero">
+        <div class="badge">Interview Prep</div>
+        <h1>Java Topics<br><span class="grad">Ranked by Interview Importance</span></h1>
+        <p>A <b>detailed analysis</b> of every major Java topic — ordered by how frequently they appear in technical interviews, from entry-level to senior SDE roles. Know what to study first.</p>
+    </div>
+
+    <!-- ===== TOC ===== -->
+    <div class="toc">
+        <div class="toc-title">📋 Table of Contents</div>
+        <div class="toc-grid">
+            <a class="toc-item" href="#t1"><div class="toc-n rd">T1</div>OOP Fundamentals</a>
+            <a class="toc-item" href="#t2"><div class="toc-n rd">T1</div>Collections Framework</a>
+            <a class="toc-item" href="#t3"><div class="toc-n rd">T1</div>Multithreading &amp; Concurrency</a>
+            <a class="toc-item" href="#t4"><div class="toc-n rd">T1</div>Java Memory &amp; GC</a>
+            <a class="toc-item" href="#t5"><div class="toc-n yw">T2</div>Java 8+ Features</a>
+            <a class="toc-item" href="#t6"><div class="toc-n yw">T2</div>Exception Handling</a>
+            <a class="toc-item" href="#t7"><div class="toc-n yw">T2</div>String Internals</a>
+            <a class="toc-item" href="#t8"><div class="toc-n yw">T2</div>Generics &amp; Type System</a>
+            <a class="toc-item" href="#t9"><div class="toc-n cy">T3</div>Design Patterns</a>
+            <a class="toc-item" href="#t10"><div class="toc-n cy">T3</div>SOLID Principles</a>
+            <a class="toc-item" href="#t11"><div class="toc-n cy">T3</div>JVM Internals</a>
+            <a class="toc-item" href="#t12"><div class="toc-n cy">T3</div>I/O &amp; Serialization</a>
+            <a class="toc-item" href="#t13"><div class="toc-n gn">T4</div>Reflection &amp; Annotations</a>
+            <a class="toc-item" href="#t14"><div class="toc-n gn">T4</div>Modern Java (9–21)</div></a>
+            <a class="toc-item" href="#t15"><div class="toc-n gn">T4</div>JDBC &amp; Persistence</a>
+            <a class="toc-item" href="#t16"><div class="toc-n gn">T4</div>Testing &amp; Build Tools</a>
+        </div>
+    </div>
+
+    <!-- ===== TIER 1 BANNER ===== -->
+    <div class="tier-banner" id="tier1" style="background:rgba(255,107,107,0.03);border-bottom:1px solid rgba(255,107,107,0.1);">
+        <div class="tier-badge t1">🔥 Tier 1</div>
+        <div class="tier-info"><b>Must-Know — Asked in virtually every Java interview.</b> These topics alone account for ~60% of technical interview questions. Master these before anything else.</div>
+    </div>
+
+    <!-- ===== 1. OOP ===== -->
+    <div class="sec th-rd" id="t1">
+        <div class="sec-h">
+            <div class="sec-n">1</div>
+            <div>
+                <div class="sec-t">OOP Fundamentals</div>
+                <div class="sec-sub">Encapsulation · Inheritance · Polymorphism · Abstraction</div>
+            </div>
+        </div>
+        <div class="sec-intro">The <b>bedrock of every Java interview</b>. Interviewers test OOP not just for definitions — they want to see you apply these principles to real design problems. Expect questions like "how would you design a parking lot?" or "explain method overloading vs overriding with an example."</div>
+
+        <div class="topic-grid">
+            <div class="topic-card rd-c">
+                <div class="topic-rank rd">🔥 Highest Priority</div>
+                <div class="topic-title">Encapsulation</div>
+                <div class="topic-tags">
+                    <span class="tag rd">Access Modifiers</span>
+                    <span class="tag rd">Data Hiding</span>
+                </div>
+                <div class="topic-desc"><b>Bundling data with methods</b> that operate on it, and restricting direct access via access modifiers (<code>private</code>, <code>protected</code>, <code>public</code>).</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot rd"></div>private / protected / public / package-private</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>Getter &amp; setter patterns, bean conventions</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>Immutable classes (final fields + no setters)</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill rd" style="width:95%"></div></div></div>
+            </div>
+            <div class="topic-card rd-c">
+                <div class="topic-rank rd">🔥 Highest Priority</div>
+                <div class="topic-title">Inheritance &amp; Polymorphism</div>
+                <div class="topic-tags">
+                    <span class="tag rd">extends</span>
+                    <span class="tag rd">Overriding</span>
+                    <span class="tag yw">Dynamic Dispatch</span>
+                </div>
+                <div class="topic-desc"><b>IS-A relationship</b> via <code>extends</code> and <code>implements</code>. Polymorphism enables a single interface to represent different underlying types — both compile-time (overloading) and runtime (overriding).</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot rd"></div>Method overloading vs. overriding (rules &amp; differences)</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>Covariant return types, <code>super</code> keyword</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>Why Java doesn't support multiple class inheritance</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>Dynamic method dispatch &amp; vtable concept</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill rd" style="width:98%"></div></div></div>
+            </div>
+            <div class="topic-card rd-c">
+                <div class="topic-rank rd">🔥 Highest Priority</div>
+                <div class="topic-title">Abstraction</div>
+                <div class="topic-tags">
+                    <span class="tag rd">abstract class</span>
+                    <span class="tag rd">interface</span>
+                    <span class="tag yw">default methods</span>
+                </div>
+                <div class="topic-desc">Hiding complexity behind a <b>contract</b>. The classic interview question: <b>abstract class vs. interface</b> — know every difference cold.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot rd"></div>Abstract class: partial implementation, constructors allowed</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>Interface: default/static methods since Java 8</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>When to choose interface vs abstract class</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>Marker interfaces (Serializable, Cloneable)</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill rd" style="width:93%"></div></div></div>
+            </div>
+            <div class="topic-card rd-c">
+                <div class="topic-rank rd">🔥 Highest Priority</div>
+                <div class="topic-title">Object Class &amp; Core Contracts</div>
+                <div class="topic-tags">
+                    <span class="tag rd">equals/hashCode</span>
+                    <span class="tag rd">toString</span>
+                    <span class="tag yw">Comparable</span>
+                </div>
+                <div class="topic-desc"><b>Every class inherits Object</b>. Interviewers constantly probe <code>equals()</code> &amp; <code>hashCode()</code> contracts — violating them breaks Collections.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot rd"></div>equals() &amp; hashCode() contract (reflexive, symmetric, transitive)</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>Comparable vs. Comparator</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>clone() — deep vs. shallow copy</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>finalize() — why it's deprecated</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill rd" style="width:90%"></div></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 2. Collections ===== -->
+    <div class="sec th-rd" id="t2">
+        <div class="sec-h">
+            <div class="sec-n">2</div>
+            <div>
+                <div class="sec-t">Collections Framework</div>
+                <div class="sec-sub">List · Set · Map · Queue · Internal Implementations</div>
+            </div>
+        </div>
+        <div class="sec-intro">Collections is the <b>most tested area in Java interviews</b>. You will be asked to compare data structures, explain internal workings (especially <b>HashMap internals</b>), and pick the right structure for a scenario. Leetcode-style DSA problems also heavily rely on this knowledge.</div>
+
+        <div class="topic-grid">
+            <div class="topic-card rd-c">
+                <div class="topic-rank rd">🔥 Highest Priority</div>
+                <div class="topic-title">HashMap &amp; ConcurrentHashMap</div>
+                <div class="topic-tags">
+                    <span class="tag rd">Hashing</span>
+                    <span class="tag rd">Buckets</span>
+                    <span class="tag yw">Thread Safety</span>
+                </div>
+                <div class="topic-desc"><b>The #1 most asked data structure</b>. Know the internal array-of-buckets structure, hash collision handling (chaining → treeification in Java 8), load factor, resize, and the difference from ConcurrentHashMap.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot rd"></div>Initial capacity (16), load factor (0.75), resize at 75% full</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>Java 8: bucket list → red-black tree at threshold 8</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>ConcurrentHashMap: segment locks → CAS + synchronized buckets</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>LinkedHashMap (insertion order), TreeMap (sorted)</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>Why HashMap is NOT thread-safe (race on resize)</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill rd" style="width:100%"></div></div></div>
+            </div>
+            <div class="topic-card rd-c">
+                <div class="topic-rank rd">🔥 Highest Priority</div>
+                <div class="topic-title">List Implementations</div>
+                <div class="topic-tags">
+                    <span class="tag rd">ArrayList</span>
+                    <span class="tag rd">LinkedList</span>
+                    <span class="tag yw">Vector</span>
+                </div>
+                <div class="topic-desc">Know the <b>time complexities cold</b>. ArrayList is O(1) random access but O(n) insert/delete. LinkedList is O(1) insert/delete at ends but O(n) access. Always explain <em>why</em>.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot rd"></div>ArrayList internal array — resize by 50% growth</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>LinkedList — doubly linked, also implements Deque</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>ArrayList vs Vector (synchronization overhead)</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>CopyOnWriteArrayList — safe iteration under writes</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill rd" style="width:92%"></div></div></div>
+            </div>
+            <div class="topic-card rd-c">
+                <div class="topic-rank rd">🔥 Highest Priority</div>
+                <div class="topic-title">Set Implementations</div>
+                <div class="topic-tags">
+                    <span class="tag rd">HashSet</span>
+                    <span class="tag yw">TreeSet</span>
+                    <span class="tag yw">LinkedHashSet</span>
+                </div>
+                <div class="topic-desc"><b>HashSet internally uses HashMap</b> (the value is a dummy Object). TreeSet uses a Red-Black Tree — O(log n) ops but always sorted. Key question: how does HashSet determine uniqueness?</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot rd"></div>HashSet = HashMap with dummy value — equals() + hashCode() for uniqueness</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>TreeSet = TreeMap — natural order or custom Comparator</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>EnumSet — highly efficient bit-vector backed set</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill rd" style="width:88%"></div></div></div>
+            </div>
+            <div class="topic-card rd-c">
+                <div class="topic-rank rd">🔥 Highest Priority</div>
+                <div class="topic-title">Queue, Deque &amp; PriorityQueue</div>
+                <div class="topic-tags">
+                    <span class="tag rd">Queue</span>
+                    <span class="tag yw">BlockingQueue</span>
+                    <span class="tag cy">Min/Max Heap</span>
+                </div>
+                <div class="topic-desc"><b>PriorityQueue</b> backs every Dijkstra / BFS / K-largest interview problem. BlockingQueue is the foundation of the producer-consumer pattern tested in concurrency questions.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot rd"></div>PriorityQueue — min-heap by default; use Comparator for max-heap</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>ArrayDeque — faster than LinkedList for stack/queue usage</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>BlockingQueue, LinkedBlockingQueue, ArrayBlockingQueue</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill rd" style="width:85%"></div></div></div>
+            </div>
+        </div>
+
+        <div class="callout rd">
+            <div class="callout-icon">⚡</div>
+            <div class="callout-body">
+                <div class="co-title rd">Key Interview Question: Collections Complexity Cheat Sheet</div>
+                <div class="co-text">Always know: <b>ArrayList</b> — O(1) get, O(n) add(0); <b>LinkedList</b> — O(1) add/remove at ends, O(n) get; <b>HashMap/HashSet</b> — O(1) avg, O(n) worst; <b>TreeMap/TreeSet</b> — O(log n) all ops; <b>PriorityQueue</b> — O(log n) add/poll, O(1) peek.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 3. Multithreading ===== -->
+    <div class="sec th-rd" id="t3">
+        <div class="sec-h">
+            <div class="sec-n">3</div>
+            <div>
+                <div class="sec-t">Multithreading &amp; Concurrency</div>
+                <div class="sec-sub">Thread Lifecycle · Synchronization · Locks · Concurrent Utilities</div>
+            </div>
+        </div>
+        <div class="sec-intro">This is a <b>senior interview differentiator</b>. Even entry-level roles increasingly ask about threads. Interviewers test whether you understand race conditions, deadlocks, and thread-safe patterns — not just how to create a thread.</div>
+
+        <div class="topic-grid">
+            <div class="topic-card rd-c">
+                <div class="topic-rank rd">🔥 Highest Priority</div>
+                <div class="topic-title">Thread Lifecycle &amp; Creation</div>
+                <div class="topic-tags">
+                    <span class="tag rd">Thread</span>
+                    <span class="tag rd">Runnable</span>
+                    <span class="tag yw">Callable</span>
+                </div>
+                <div class="topic-desc">Know all <b>6 thread states</b> (NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING, TERMINATED) and every state transition. Know the difference between <code>Thread</code> subclassing vs. <code>Runnable</code> vs. <code>Callable</code>.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot rd"></div>start() vs run() — crucial distinction</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>sleep() vs wait() — sleep doesn't release lock</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>join(), interrupt(), daemon threads</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>Thread pool via ExecutorService, Executors factory</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill rd" style="width:95%"></div></div></div>
+            </div>
+            <div class="topic-card rd-c">
+                <div class="topic-rank rd">🔥 Highest Priority</div>
+                <div class="topic-title">synchronized, volatile &amp; Locks</div>
+                <div class="topic-tags">
+                    <span class="tag rd">synchronized</span>
+                    <span class="tag rd">volatile</span>
+                    <span class="tag yw">ReentrantLock</span>
+                </div>
+                <div class="topic-desc"><b>synchronized</b> provides mutual exclusion + visibility. <b>volatile</b> provides only visibility (no atomicity). Know when each is needed — this is a constant interview trap.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot rd"></div>Monitor lock — object lock vs. class lock</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>volatile — prevents caching, ensures happens-before</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>ReentrantLock — tryLock, lockInterruptibly, fairness</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>ReadWriteLock for read-heavy scenarios</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill rd" style="width:97%"></div></div></div>
+            </div>
+            <div class="topic-card rd-c">
+                <div class="topic-rank rd">🔥 Highest Priority</div>
+                <div class="topic-title">Deadlock, Race Condition &amp; Livelock</div>
+                <div class="topic-tags">
+                    <span class="tag rd">Deadlock</span>
+                    <span class="tag rd">Race Condition</span>
+                    <span class="tag yw">Starvation</span>
+                </div>
+                <div class="topic-desc">Interviewers love asking you to <b>identify and fix a deadlock</b> in code. Know the four Coffman conditions for deadlock and strategies to prevent/detect it.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot rd"></div>4 Coffman conditions: mutual exclusion, hold &amp; wait, no preemption, circular wait</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>Prevention: consistent lock ordering, tryLock with timeout</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>Race condition: check-then-act &amp; read-modify-write patterns</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill rd" style="width:90%"></div></div></div>
+            </div>
+            <div class="topic-card rd-c">
+                <div class="topic-rank rd">🔥 Highest Priority</div>
+                <div class="topic-title">java.util.concurrent Utilities</div>
+                <div class="topic-tags">
+                    <span class="tag rd">CountDownLatch</span>
+                    <span class="tag yw">Semaphore</span>
+                    <span class="tag yw">Future</span>
+                </div>
+                <div class="topic-desc">The <code>java.util.concurrent</code> package is <b>extensively used in production</b> and increasingly tested. CompletableFuture is especially hot in modern interviews.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot rd"></div>CountDownLatch — wait for N events; not reusable</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>CyclicBarrier — all threads wait at a barrier; reusable</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>Semaphore — controls access to N permits (rate limiting)</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>CompletableFuture — async pipeline with thenApply/thenCompose</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>AtomicInteger, AtomicReference — lock-free CAS operations</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill rd" style="width:88%"></div></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 4. Memory & GC ===== -->
+    <div class="sec th-rd" id="t4">
+        <div class="sec-h">
+            <div class="sec-n">4</div>
+            <div>
+                <div class="sec-t">Java Memory Model &amp; Garbage Collection</div>
+                <div class="sec-sub">Heap · Stack · GC Algorithms · Memory Leaks</div>
+            </div>
+        </div>
+        <div class="sec-intro">Understanding the JVM memory model is what <b>separates good Java developers from great ones</b>. Questions about memory leaks, GC tuning, and OutOfMemoryError are common in senior interviews. Even junior interviews ask about stack vs heap.</div>
+
+        <div class="topic-grid">
+            <div class="topic-card rd-c">
+                <div class="topic-rank rd">🔥 Highest Priority</div>
+                <div class="topic-title">Heap vs. Stack Memory</div>
+                <div class="topic-tags">
+                    <span class="tag rd">Heap</span>
+                    <span class="tag rd">Stack</span>
+                    <span class="tag yw">Method Area</span>
+                </div>
+                <div class="topic-desc"><b>Stack</b>: thread-local, holds local vars &amp; method frames, auto-managed. <b>Heap</b>: shared across threads, holds objects, GC-managed. Interviewers test where objects and primitives live.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot rd"></div>Heap: Young Gen (Eden + Survivor), Old Gen, Metaspace</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>Stack overflow vs. heap OutOfMemoryError</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>String Pool (part of Heap since Java 7)</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill rd" style="width:93%"></div></div></div>
+            </div>
+            <div class="topic-card rd-c">
+                <div class="topic-rank rd">🔥 Highest Priority</div>
+                <div class="topic-title">Garbage Collection Algorithms</div>
+                <div class="topic-tags">
+                    <span class="tag rd">Mark &amp; Sweep</span>
+                    <span class="tag yw">G1GC</span>
+                    <span class="tag cy">ZGC</span>
+                </div>
+                <div class="topic-desc">Know the <b>generational hypothesis</b> — most objects die young. Understand minor GC vs. major GC vs. full GC and when each triggers.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot rd"></div>Serial, Parallel, CMS, G1GC, ZGC, Shenandoah</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>G1GC: default since Java 9 — region-based, low pause</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>Stop-the-world pauses and their impact</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>GC roots: thread stacks, static fields, JNI refs</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill rd" style="width:87%"></div></div></div>
+            </div>
+            <div class="topic-card rd-c">
+                <div class="topic-rank rd">🔥 Highest Priority</div>
+                <div class="topic-title">Memory Leaks in Java</div>
+                <div class="topic-tags">
+                    <span class="tag rd">Memory Leak</span>
+                    <span class="tag yw">WeakReference</span>
+                    <span class="tag yw">ThreadLocal</span>
+                </div>
+                <div class="topic-desc">Java can still have memory leaks even with GC. <b>The most common causes</b>: unclosed streams, static collections growing unbounded, ThreadLocal not removed, listeners not deregistered.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot rd"></div>Static fields holding references to large objects</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>ThreadLocal leak in thread-pool environments</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>WeakReference, SoftReference, PhantomReference</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>Diagnosing with VisualVM / jmap / heap dumps</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill rd" style="width:82%"></div></div></div>
+            </div>
+            <div class="topic-card rd-c">
+                <div class="topic-rank rd">🔥 Highest Priority</div>
+                <div class="topic-title">Java Memory Model (JMM)</div>
+                <div class="topic-tags">
+                    <span class="tag rd">happens-before</span>
+                    <span class="tag yw">Visibility</span>
+                    <span class="tag yw">Atomicity</span>
+                </div>
+                <div class="topic-desc">The <b>JMM defines when one thread's writes are guaranteed visible to another</b>. This underpins all concurrency correctness. Essential for senior interviews.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot rd"></div>happens-before guarantee: synchronization, volatile, Thread.start/join</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>Instruction reordering by CPU / JIT — why volatile matters</div>
+                        <div class="sub-item"><div class="sub-dot rd"></div>Double-checked locking + volatile fix for Singleton</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill rd" style="width:84%"></div></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TIER 2 BANNER ===== -->
+    <div class="tier-banner" id="tier2" style="background:rgba(254,202,87,0.02);border-bottom:1px solid rgba(254,202,87,0.08);">
+        <div class="tier-badge t2">⚡ Tier 2</div>
+        <div class="tier-info"><b>High Importance — Asked in most mid-level to senior interviews.</b> These topics show depth of Java knowledge beyond basic OOP. Expect follow-up questions if you mention them.</div>
+    </div>
+
+    <!-- ===== 5. Java 8+ ===== -->
+    <div class="sec th-yw" id="t5">
+        <div class="sec-h">
+            <div class="sec-n">5</div>
+            <div>
+                <div class="sec-t">Java 8+ Features</div>
+                <div class="sec-sub">Streams · Lambdas · Optional · Functional Interfaces</div>
+            </div>
+        </div>
+        <div class="sec-intro">Java 8 transformed the language. <b>Almost every modern Java project uses Streams and Lambdas</b>, so these are now baseline expectations. Be ready to write stream pipelines on a whiteboard.</div>
+
+        <div class="topic-grid">
+            <div class="topic-card yw-c">
+                <div class="topic-rank yw">⚡ High Priority</div>
+                <div class="topic-title">Lambda Expressions &amp; Functional Interfaces</div>
+                <div class="topic-tags">
+                    <span class="tag yw">Lambda</span>
+                    <span class="tag yw">@FunctionalInterface</span>
+                </div>
+                <div class="topic-desc">Lambdas are <b>anonymous functions</b> enabling functional-style programming. Functional interfaces (exactly 1 abstract method) are their type. Know the 4 core built-in functional interfaces.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot yw"></div>Predicate&lt;T&gt; — T → boolean (test/filter)</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>Function&lt;T,R&gt; — T → R (transform/map)</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>Consumer&lt;T&gt; — T → void (side effects)</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>Supplier&lt;T&gt; — () → T (factory/lazy init)</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>Method references: Class::method, instance::method</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill yw" style="width:93%"></div></div></div>
+            </div>
+            <div class="topic-card yw-c">
+                <div class="topic-rank yw">⚡ High Priority</div>
+                <div class="topic-title">Stream API</div>
+                <div class="topic-tags">
+                    <span class="tag yw">Stream</span>
+                    <span class="tag yw">Lazy Evaluation</span>
+                    <span class="tag cy">Parallel Streams</span>
+                </div>
+                <div class="topic-desc"><b>Declarative data processing pipeline</b>. Streams are lazy — intermediate operations only run when a terminal operation is invoked. Know the difference between intermediate and terminal ops.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot yw"></div>Intermediate: filter, map, flatMap, distinct, sorted, peek</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>Terminal: collect, forEach, reduce, count, findFirst, anyMatch</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>Collectors.groupingBy, partitioningBy, joining, toMap</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>Parallel streams — ForkJoinPool, when to use (CPU-bound, stateless)</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill yw" style="width:95%"></div></div></div>
+            </div>
+            <div class="topic-card yw-c">
+                <div class="topic-rank yw">⚡ High Priority</div>
+                <div class="topic-title">Optional&lt;T&gt;</div>
+                <div class="topic-tags">
+                    <span class="tag yw">Null Safety</span>
+                    <span class="tag yw">Optional</span>
+                </div>
+                <div class="topic-desc">A container that <b>may or may not hold a value</b>, designed to eliminate NullPointerException. Know the API and common anti-patterns (like Optional.get() without check).</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot yw"></div>of(), ofNullable(), empty() — creation methods</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>isPresent() vs. ifPresent(), orElse vs. orElseGet</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>map(), flatMap(), filter() on Optional</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>Anti-pattern: using as method parameter type or in collections</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill yw" style="width:80%"></div></div></div>
+            </div>
+            <div class="topic-card yw-c">
+                <div class="topic-rank yw">⚡ High Priority</div>
+                <div class="topic-title">Default &amp; Static Interface Methods</div>
+                <div class="topic-tags">
+                    <span class="tag yw">default</span>
+                    <span class="tag yw">static</span>
+                    <span class="tag cy">Diamond Problem</span>
+                </div>
+                <div class="topic-desc">Java 8 added <code>default</code> methods to interfaces, enabling <b>backward-compatible API evolution</b>. Understand the diamond problem resolution rules.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot yw"></div>default methods — class override wins over interface default</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>Diamond conflict resolution: class &gt; interface, more specific &gt; less specific</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>static methods in interface — not inherited</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill yw" style="width:76%"></div></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 6. Exception Handling ===== -->
+    <div class="sec th-yw" id="t6">
+        <div class="sec-h">
+            <div class="sec-n">6</div>
+            <div>
+                <div class="sec-t">Exception Handling</div>
+                <div class="sec-sub">Checked · Unchecked · try-with-resources · Custom Exceptions</div>
+            </div>
+        </div>
+        <div class="sec-intro">Exception handling is asked in <b>almost every Java interview</b>. Questions range from the class hierarchy to tricky scenarios like returning from a finally block or catching exceptions in lambdas.</div>
+
+        <div class="topic-grid">
+            <div class="topic-card yw-c">
+                <div class="topic-rank yw">⚡ High Priority</div>
+                <div class="topic-title">Exception Hierarchy</div>
+                <div class="topic-tags">
+                    <span class="tag yw">Throwable</span>
+                    <span class="tag yw">Checked</span>
+                    <span class="tag rd">Unchecked</span>
+                </div>
+                <div class="topic-desc"><b>Throwable → Error | Exception</b>. Error is non-recoverable (OOM, StackOverflow). Checked exceptions must be declared/caught (IOException, SQLException). Unchecked (RuntimeException) — optional handling.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot yw"></div>Checked: IOException, SQLException, ClassNotFoundException</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>Unchecked: NullPointerException, ArrayIndexOutOfBoundsException, IllegalArgumentException</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>When to use checked vs. unchecked (design decision)</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill yw" style="width:90%"></div></div></div>
+            </div>
+            <div class="topic-card yw-c">
+                <div class="topic-rank yw">⚡ High Priority</div>
+                <div class="topic-title">try-with-resources &amp; finally</div>
+                <div class="topic-tags">
+                    <span class="tag yw">AutoCloseable</span>
+                    <span class="tag yw">finally</span>
+                    <span class="tag cy">Suppressed</span>
+                </div>
+                <div class="topic-desc">Java 7's try-with-resources automatically closes <code>AutoCloseable</code> resources. The <b>tricky interview question</b>: what happens when both the try block and close() throw exceptions?</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot yw"></div>Suppressed exceptions via Throwable.getSuppressed()</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>finally always executes (except System.exit() / JVM crash)</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>Return in finally overrides return in try — interview trap!</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill yw" style="width:82%"></div></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 7. String ===== -->
+    <div class="sec th-yw" id="t7">
+        <div class="sec-h">
+            <div class="sec-n">7</div>
+            <div>
+                <div class="sec-t">String Internals</div>
+                <div class="sec-sub">Immutability · String Pool · StringBuilder · Performance</div>
+            </div>
+        </div>
+        <div class="sec-intro">Strings are <b>the most commonly used class in Java</b> and appear in almost every interview — both as direct questions about internals and as DSA problems (palindromes, anagrams, etc.).</div>
+
+        <div class="topic-grid">
+            <div class="topic-card yw-c">
+                <div class="topic-rank yw">⚡ High Priority</div>
+                <div class="topic-title">Immutability &amp; String Pool</div>
+                <div class="topic-tags">
+                    <span class="tag yw">Immutable</span>
+                    <span class="tag yw">intern()</span>
+                    <span class="tag cy">== vs equals()</span>
+                </div>
+                <div class="topic-desc">String is <b>immutable by design</b> — thread-safe, cacheable hashCode, security benefits. The String Pool (interning) reuses literal instances. <code>==</code> vs <code>equals()</code> is a classic trap.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot yw"></div><code>"hello" == "hello"</code> → true (pool); <code>new String("hello") == "hello"</code> → false</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>intern() — move to pool; use sparingly (PermGen/Metaspace pressure)</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>Why immutable: security (ClassLoader, network), hashCode caching, thread safety</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill yw" style="width:92%"></div></div></div>
+            </div>
+            <div class="topic-card yw-c">
+                <div class="topic-rank yw">⚡ High Priority</div>
+                <div class="topic-title">String vs StringBuilder vs StringBuffer</div>
+                <div class="topic-tags">
+                    <span class="tag yw">Performance</span>
+                    <span class="tag yw">Mutable</span>
+                    <span class="tag cy">Thread Safe</span>
+                </div>
+                <div class="topic-desc">String concatenation in a loop creates O(n²) garbage. <b>StringBuilder</b> is O(n) and should be used for mutable string building. StringBuffer is synchronized — use only when sharing across threads (rare).</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot yw"></div>Java 9+ compiles "a" + b into StringConcatFactory (not always StringBuilder)</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>StringBuffer: synchronized, legacy, avoid unless truly needed</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>charAt, indexOf, substring, replace — all return new String</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill yw" style="width:88%"></div></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 8. Generics ===== -->
+    <div class="sec th-yw" id="t8">
+        <div class="sec-h">
+            <div class="sec-n">8</div>
+            <div>
+                <div class="sec-t">Generics &amp; Type System</div>
+                <div class="sec-sub">Type Parameters · Wildcards · Type Erasure · Bounded Types</div>
+            </div>
+        </div>
+        <div class="sec-intro">Generics enable <b>type-safe, reusable code</b>. Understanding type erasure and wildcards is critical for working with Collections and designing APIs — and is a common source of interview questions about why certain operations don't compile.</div>
+
+        <div class="topic-grid">
+            <div class="topic-card yw-c">
+                <div class="topic-rank yw">⚡ High Priority</div>
+                <div class="topic-title">Generic Classes &amp; Methods</div>
+                <div class="topic-tags">
+                    <span class="tag yw">&lt;T&gt;</span>
+                    <span class="tag yw">bounded</span>
+                    <span class="tag cy">PECS</span>
+                </div>
+                <div class="topic-desc">Generics provide <b>compile-time type safety</b>. Know the PECS principle: <b>Producer Extends, Consumer Super</b> — the rule for using wildcards with Collections correctly.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot yw"></div>Upper bounded: &lt;T extends Number&gt; — read from it</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>Lower bounded: &lt;T super Integer&gt; — write to it</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>Wildcard &lt;?&gt; — unknown type, read-only</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>Type erasure — generics exist only at compile time; &lt;T&gt; becomes Object at runtime</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill yw" style="width:78%"></div></div></div>
+            </div>
+            <div class="topic-card yw-c">
+                <div class="topic-rank yw">⚡ High Priority</div>
+                <div class="topic-title">Enums, Records &amp; Sealed Classes</div>
+                <div class="topic-tags">
+                    <span class="tag yw">enum</span>
+                    <span class="tag cy">record</span>
+                    <span class="tag cy">sealed</span>
+                </div>
+                <div class="topic-desc">Enums are <b>type-safe constants with full class capabilities</b>. Records (Java 16) are immutable data carriers. Sealed classes (Java 17) restrict the class hierarchy — great for modeling domain types.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot yw"></div>Enum: values(), ordinal(), name(), valueOf(); can have fields &amp; methods</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>EnumMap and EnumSet — highly efficient for enum-keyed data</div>
+                        <div class="sub-item"><div class="sub-dot yw"></div>Record: auto-generates constructor, equals, hashCode, toString</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill yw" style="width:72%"></div></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TIER 3 BANNER ===== -->
+    <div class="tier-banner" id="tier3" style="background:rgba(0,212,255,0.02);border-bottom:1px solid rgba(0,212,255,0.08);">
+        <div class="tier-badge t3">🔵 Tier 3</div>
+        <div class="tier-info"><b>Medium Importance — Expected at mid-senior level; differentiates strong candidates.</b> Deep knowledge here signals genuine engineering maturity.</div>
+    </div>
+
+    <!-- ===== 9. Design Patterns ===== -->
+    <div class="sec th-cy" id="t9">
+        <div class="sec-h">
+            <div class="sec-n">9</div>
+            <div>
+                <div class="sec-t">Design Patterns</div>
+                <div class="sec-sub">Creational · Structural · Behavioral</div>
+            </div>
+        </div>
+        <div class="sec-intro">Design patterns are <b>reusable solutions to common software design problems</b>. Interviewers at top companies often give system design scenarios and expect you to propose and justify the right pattern.</div>
+
+        <table class="tbl">
+            <tr>
+                <th>Category</th>
+                <th>Pattern</th>
+                <th>Interview Importance</th>
+                <th>Key Insight</th>
+            </tr>
+            <tr><td><span class="cy">Creational</span></td><td><b>Singleton</b></td><td><span class="rd">🔥 Very High</span></td><td>Thread-safe impl: double-checked locking + <code>volatile</code></td></tr>
+            <tr><td><span class="cy">Creational</span></td><td><b>Factory / Abstract Factory</b></td><td><span class="rd">🔥 Very High</span></td><td>Decouple object creation from usage</td></tr>
+            <tr><td><span class="cy">Creational</span></td><td><b>Builder</b></td><td><span class="yw">⚡ High</span></td><td>Fluent API for objects with many optional params</td></tr>
+            <tr><td><span class="cy">Creational</span></td><td><b>Prototype</b></td><td><span class="gn">● Medium</span></td><td>Clone existing objects instead of creating new</td></tr>
+            <tr><td><span class="pu">Structural</span></td><td><b>Decorator</b></td><td><span class="yw">⚡ High</span></td><td>Add behavior at runtime (Java I/O streams use this)</td></tr>
+            <tr><td><span class="pu">Structural</span></td><td><b>Proxy</b></td><td><span class="yw">⚡ High</span></td><td>AOP, lazy loading, access control</td></tr>
+            <tr><td><span class="pu">Structural</span></td><td><b>Adapter</b></td><td><span class="gn">● Medium</span></td><td>Bridge incompatible interfaces</td></tr>
+            <tr><td><span class="pu">Structural</span></td><td><b>Facade</b></td><td><span class="gn">● Medium</span></td><td>Simplified interface to a complex subsystem</td></tr>
+            <tr><td><span class="or">Behavioral</span></td><td><b>Observer</b></td><td><span class="yw">⚡ High</span></td><td>Event-driven; basis of MVC &amp; reactive patterns</td></tr>
+            <tr><td><span class="or">Behavioral</span></td><td><b>Strategy</b></td><td><span class="yw">⚡ High</span></td><td>Swap algorithms at runtime; replaces if-else chains</td></tr>
+            <tr><td><span class="or">Behavioral</span></td><td><b>Command</b></td><td><span class="gn">● Medium</span></td><td>Encapsulate requests — undo/redo, queuing</td></tr>
+            <tr><td><span class="or">Behavioral</span></td><td><b>Template Method</b></td><td><span class="gn">● Medium</span></td><td>Define skeleton in base class, steps in subclass</td></tr>
+        </table>
+    </div>
+
+    <!-- ===== 10. SOLID ===== -->
+    <div class="sec th-cy" id="t10">
+        <div class="sec-h">
+            <div class="sec-n">10</div>
+            <div>
+                <div class="sec-t">SOLID Principles</div>
+                <div class="sec-sub">SRP · OCP · LSP · ISP · DIP</div>
+            </div>
+        </div>
+        <div class="sec-intro">SOLID principles are the <b>foundation of maintainable, scalable object-oriented design</b>. Interviewers at all levels ask about them — often asking you to identify which principle a bad code snippet violates.</div>
+
+        <table class="tbl">
+            <tr>
+                <th>Principle</th>
+                <th>One-line Rule</th>
+                <th>Common Interview Ask</th>
+            </tr>
+            <tr><td><b>S — Single Responsibility</b></td><td>A class should have <b>one reason to change</b></td><td>Identify what "responsibility" a god-class should split into</td></tr>
+            <tr><td><b>O — Open/Closed</b></td><td>Open for <b>extension</b>, closed for <b>modification</b></td><td>How do you add a new payment method without modifying existing code?</td></tr>
+            <tr><td><b>L — Liskov Substitution</b></td><td>Subtypes must be <b>substitutable</b> for their base types</td><td>Why does Square extends Rectangle violate LSP?</td></tr>
+            <tr><td><b>I — Interface Segregation</b></td><td>Clients should not depend on <b>interfaces they don't use</b></td><td>Split a fat interface into role-specific ones</td></tr>
+            <tr><td><b>D — Dependency Inversion</b></td><td>Depend on <b>abstractions</b>, not concretions</td><td>How does Spring DI implement this principle?</td></tr>
+        </table>
+    </div>
+
+    <!-- ===== 11. JVM Internals ===== -->
+    <div class="sec th-cy" id="t11">
+        <div class="sec-h">
+            <div class="sec-n">11</div>
+            <div>
+                <div class="sec-t">JVM Internals</div>
+                <div class="sec-sub">ClassLoader · JIT · Bytecode · Runtime Data Areas</div>
+            </div>
+        </div>
+        <div class="sec-intro">JVM internals are <b>expected knowledge at senior level</b>. Understanding how Java bytecode is loaded, verified, and compiled by JIT helps you reason about performance, startup time, and ClassLoader-based frameworks (Spring, OSGi).</div>
+
+        <div class="topic-grid">
+            <div class="topic-card cy-c">
+                <div class="topic-rank cy">🔵 Medium-High Priority</div>
+                <div class="topic-title">ClassLoader Subsystem</div>
+                <div class="topic-tags">
+                    <span class="tag cy">Bootstrap</span>
+                    <span class="tag cy">Platform</span>
+                    <span class="tag cy">Application</span>
+                </div>
+                <div class="topic-desc">ClassLoaders follow a <b>parent-delegation model</b> — before loading a class, a loader asks its parent first. This prevents malicious code from substituting core Java classes.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot cy"></div>Bootstrap (JVM core) → Platform → Application → Custom</div>
+                        <div class="sub-item"><div class="sub-dot cy"></div>Class loading phases: Loading → Linking (Verify/Prepare/Resolve) → Initialization</div>
+                        <div class="sub-item"><div class="sub-dot cy"></div>Hot reloading, OSGi, and custom ClassLoaders</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill cy" style="width:72%"></div></div></div>
+            </div>
+            <div class="topic-card cy-c">
+                <div class="topic-rank cy">🔵 Medium-High Priority</div>
+                <div class="topic-title">JIT Compiler &amp; Bytecode</div>
+                <div class="topic-tags">
+                    <span class="tag cy">JIT</span>
+                    <span class="tag cy">Bytecode</span>
+                    <span class="tag yw">AOT</span>
+                </div>
+                <div class="topic-desc">JVM interprets bytecode initially, then <b>JIT-compiles hot paths to native code</b>. HotSpot uses C1 (client/fast compile) and C2 (server/optimizing) compilers in tiered compilation.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot cy"></div>Tiered compilation: interpreted → C1 → C2</div>
+                        <div class="sub-item"><div class="sub-dot cy"></div>Inlining, escape analysis, dead code elimination</div>
+                        <div class="sub-item"><div class="sub-dot cy"></div>AOT (GraalVM native-image) — no JIT, instant startup</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill cy" style="width:65%"></div></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 12. I/O ===== -->
+    <div class="sec th-cy" id="t12">
+        <div class="sec-h">
+            <div class="sec-n">12</div>
+            <div>
+                <div class="sec-t">I/O, NIO &amp; Serialization</div>
+                <div class="sec-sub">Streams · Channels · Buffers · Serializable</div>
+            </div>
+        </div>
+        <div class="sec-intro">I/O is fundamental to any real application. Java NIO's <b>non-blocking I/O via Selectors and Channels</b> is the basis for high-performance servers (Netty, etc.). Serialization questions arise in distributed systems context.</div>
+
+        <div class="topic-grid">
+            <div class="topic-card cy-c">
+                <div class="topic-rank cy">🔵 Medium-High Priority</div>
+                <div class="topic-title">Java I/O Streams</div>
+                <div class="topic-tags">
+                    <span class="tag cy">InputStream</span>
+                    <span class="tag cy">OutputStream</span>
+                    <span class="tag cy">Reader/Writer</span>
+                </div>
+                <div class="topic-desc">Java I/O is built on the <b>Decorator pattern</b> — wrap streams to add buffering, compression, encryption, etc. Always close streams (use try-with-resources).</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot cy"></div>Byte streams (InputStream/OutputStream) vs. character streams (Reader/Writer)</div>
+                        <div class="sub-item"><div class="sub-dot cy"></div>BufferedReader/Writer, PrintWriter for text</div>
+                        <div class="sub-item"><div class="sub-dot cy"></div>Files, Paths, FileChannel (NIO) for modern file I/O</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill cy" style="width:68%"></div></div></div>
+            </div>
+            <div class="topic-card cy-c">
+                <div class="topic-rank cy">🔵 Medium-High Priority</div>
+                <div class="topic-title">Serialization &amp; Deserialization</div>
+                <div class="topic-tags">
+                    <span class="tag cy">Serializable</span>
+                    <span class="tag cy">serialVersionUID</span>
+                    <span class="tag yw">Externalizable</span>
+                </div>
+                <div class="topic-desc">Java Serialization converts objects to bytes. <b>serialVersionUID</b> controls version compatibility. Know the security risks — deserialization of untrusted data is a major vulnerability vector.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot cy"></div>transient fields — excluded from serialization</div>
+                        <div class="sub-item"><div class="sub-dot cy"></div>readObject/writeObject custom serialization hooks</div>
+                        <div class="sub-item"><div class="sub-dot cy"></div>Externalizable — full manual control, more performant</div>
+                        <div class="sub-item"><div class="sub-dot cy"></div>Security: gadget chains, use of ObjectInputFilter</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill cy" style="width:62%"></div></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TIER 4 BANNER ===== -->
+    <div class="tier-banner" id="tier4" style="background:rgba(63,185,80,0.02);border-bottom:1px solid rgba(63,185,80,0.08);">
+        <div class="tier-badge t4">🟢 Tier 4</div>
+        <div class="tier-info"><b>Good-to-Know — Distinguish top candidates at senior/staff level.</b> Knowing these topics shows broad Java ecosystem awareness and production readiness.</div>
+    </div>
+
+    <!-- ===== 13. Reflection ===== -->
+    <div class="sec th-gn" id="t13">
+        <div class="sec-h">
+            <div class="sec-n">13</div>
+            <div>
+                <div class="sec-t">Reflection &amp; Annotations</div>
+                <div class="sec-sub">java.lang.reflect · @Annotation · Runtime Metadata</div>
+            </div>
+        </div>
+        <div class="sec-intro">Reflection powers frameworks like Spring, Hibernate, and JUnit. While you rarely write reflection code directly, <b>understanding it explains how these frameworks work</b>. Annotations are ubiquitous in modern Java code.</div>
+
+        <div class="topic-grid">
+            <div class="topic-card gn-c">
+                <div class="topic-rank gn">🟢 Good to Know</div>
+                <div class="topic-title">Reflection API</div>
+                <div class="topic-tags">
+                    <span class="tag gn">Class&lt;?&gt;</span>
+                    <span class="tag gn">Method</span>
+                    <span class="tag gn">Field</span>
+                </div>
+                <div class="topic-desc">Inspect and manipulate classes, methods, and fields at <b>runtime without compile-time knowledge</b>. Performance cost: reflection bypasses JIT inlining optimizations.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot gn"></div>Class.forName(), getMethod(), getDeclaredField()</div>
+                        <div class="sub-item"><div class="sub-dot gn"></div>invoke(), setAccessible(true) — module access warnings in Java 9+</div>
+                        <div class="sub-item"><div class="sub-dot gn"></div>Dynamic proxies (java.lang.reflect.Proxy) — Spring AOP</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill gn" style="width:58%"></div></div></div>
+            </div>
+            <div class="topic-card gn-c">
+                <div class="topic-rank gn">🟢 Good to Know</div>
+                <div class="topic-title">Annotation Processing</div>
+                <div class="topic-tags">
+                    <span class="tag gn">@Retention</span>
+                    <span class="tag gn">@Target</span>
+                    <span class="tag yw">APT</span>
+                </div>
+                <div class="topic-desc">Annotations are <b>metadata markers</b>. Retention controls when they're available (SOURCE/CLASS/RUNTIME). Spring, JPA, and JUnit rely entirely on runtime annotations.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot gn"></div>@Retention(RUNTIME) — visible via reflection</div>
+                        <div class="sub-item"><div class="sub-dot gn"></div>@Target — restrict where annotation can appear</div>
+                        <div class="sub-item"><div class="sub-dot gn"></div>Compile-time annotation processors (Lombok, MapStruct)</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill gn" style="width:55%"></div></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 14. Modern Java ===== -->
+    <div class="sec th-gn" id="t14">
+        <div class="sec-h">
+            <div class="sec-n">14</div>
+            <div>
+                <div class="sec-t">Modern Java (Java 9 – 21)</div>
+                <div class="sec-sub">Modules · Records · Pattern Matching · Virtual Threads</div>
+            </div>
+        </div>
+        <div class="sec-intro">Modern Java releases bring powerful language features. <b>Virtual Threads (Java 21)</b> are becoming increasingly relevant as they revolutionize concurrent programming. Interviewers at companies using Java 17+ will probe these.</div>
+
+        <table class="tbl">
+            <tr>
+                <th>Feature</th>
+                <th>Since</th>
+                <th>Importance</th>
+                <th>What to Know</th>
+            </tr>
+            <tr><td><b>var (local type inference)</b></td><td>Java 10</td><td><span class="yw">⚡ High</span></td><td>Type inferred at compile time; still statically typed; don't use for public APIs</td></tr>
+            <tr><td><b>Records</b></td><td>Java 16</td><td><span class="yw">⚡ High</span></td><td>Immutable data classes; auto-generates constructor, equals, hashCode, toString</td></tr>
+            <tr><td><b>Pattern Matching for instanceof</b></td><td>Java 16</td><td><span class="yw">⚡ High</span></td><td>Eliminates cast boilerplate: <code>if (obj instanceof String s)</code></td></tr>
+            <tr><td><b>Sealed Classes</b></td><td>Java 17</td><td><span class="gn">● Medium</span></td><td>Restrict which classes can extend/implement; enables exhaustive pattern matching</td></tr>
+            <tr><td><b>Switch Expressions</b></td><td>Java 14</td><td><span class="yw">⚡ High</span></td><td>Returns values, uses arrow syntax, no fall-through by default</td></tr>
+            <tr><td><b>Text Blocks</b></td><td>Java 15</td><td><span class="gn">● Medium</span></td><td>Multi-line strings with automatic indentation handling ("""  """)</td></tr>
+            <tr><td><b>Virtual Threads (Project Loom)</b></td><td>Java 21</td><td><span class="rd">🔥 Growing</span></td><td>Lightweight threads managed by JVM; millions per JVM; no need for reactive programming</td></tr>
+            <tr><td><b>Sequenced Collections</b></td><td>Java 21</td><td><span class="gn">● Medium</span></td><td>New interface for ordered collections with first/last access</td></tr>
+            <tr><td><b>Module System (JPMS)</b></td><td>Java 9</td><td><span class="gn">● Medium</span></td><td>Strong encapsulation; module-info.java; requires/exports declarations</td></tr>
+        </table>
+    </div>
+
+    <!-- ===== 15. JDBC ===== -->
+    <div class="sec th-gn" id="t15">
+        <div class="sec-h">
+            <div class="sec-n">15</div>
+            <div>
+                <div class="sec-t">JDBC &amp; Persistence</div>
+                <div class="sec-sub">JDBC · Connection Pools · JPA / Hibernate</div>
+            </div>
+        </div>
+        <div class="sec-intro">Database connectivity is essential for backend roles. While most modern apps use JPA/Hibernate, <b>interviewers often ask JDBC questions to test fundamentals</b>. N+1 query problem and transaction management are hot topics.</div>
+
+        <div class="topic-grid">
+            <div class="topic-card gn-c">
+                <div class="topic-rank gn">🟢 Good to Know</div>
+                <div class="topic-title">JDBC Core</div>
+                <div class="topic-tags">
+                    <span class="tag gn">Connection</span>
+                    <span class="tag gn">PreparedStatement</span>
+                    <span class="tag rd">SQL Injection</span>
+                </div>
+                <div class="topic-desc"><b>Always use PreparedStatement</b> over Statement to prevent SQL injection. ConnectionPool (HikariCP) avoids expensive connection creation per request.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot gn"></div>DriverManager vs DataSource / connection pool</div>
+                        <div class="sub-item"><div class="sub-dot gn"></div>Transaction management: commit, rollback, Savepoints</div>
+                        <div class="sub-item"><div class="sub-dot gn"></div>ResultSet types: forward-only, scrollable, updatable</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill gn" style="width:55%"></div></div></div>
+            </div>
+            <div class="topic-card gn-c">
+                <div class="topic-rank gn">🟢 Good to Know</div>
+                <div class="topic-title">JPA &amp; Hibernate</div>
+                <div class="topic-tags">
+                    <span class="tag gn">ORM</span>
+                    <span class="tag gn">N+1 Problem</span>
+                    <span class="tag yw">Lazy Loading</span>
+                </div>
+                <div class="topic-desc">JPA is the spec; Hibernate is the most popular implementation. <b>N+1 query problem</b> is the #1 performance issue and an extremely common interview question for any Spring/JPA role.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot gn"></div>Entity states: transient, persistent, detached, removed</div>
+                        <div class="sub-item"><div class="sub-dot gn"></div>N+1 problem: fix with JOIN FETCH or @BatchSize</div>
+                        <div class="sub-item"><div class="sub-dot gn"></div>First-level cache (session) vs second-level cache (EhCache)</div>
+                        <div class="sub-item"><div class="sub-dot gn"></div>Optimistic vs pessimistic locking (@Version)</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill gn" style="width:62%"></div></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 16. Testing ===== -->
+    <div class="sec th-gn" id="t16">
+        <div class="sec-h">
+            <div class="sec-n">16</div>
+            <div>
+                <div class="sec-t">Testing &amp; Build Tools</div>
+                <div class="sec-sub">JUnit · Mockito · Maven · Gradle</div>
+            </div>
+        </div>
+        <div class="sec-intro">Professional Java development requires <b>unit testing and build automation</b>. Modern interviews increasingly ask about TDD and test design. Knowledge of Maven/Gradle dependency management is assumed for any Java role.</div>
+
+        <div class="topic-grid">
+            <div class="topic-card gn-c">
+                <div class="topic-rank gn">🟢 Good to Know</div>
+                <div class="topic-title">JUnit 5 &amp; Mockito</div>
+                <div class="topic-tags">
+                    <span class="tag gn">@Test</span>
+                    <span class="tag gn">@Mock</span>
+                    <span class="tag gn">TDD</span>
+                </div>
+                <div class="topic-desc">JUnit 5 introduced the Jupiter API with a more flexible extension model. <b>Mockito is essential for isolating units</b> under test by mocking dependencies.</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot gn"></div>@Test, @BeforeEach, @AfterEach, @ParameterizedTest</div>
+                        <div class="sub-item"><div class="sub-dot gn"></div>Assertions.assertEquals, assertThrows, assertAll</div>
+                        <div class="sub-item"><div class="sub-dot gn"></div>Mockito: @Mock, @InjectMocks, when().thenReturn(), verify()</div>
+                        <div class="sub-item"><div class="sub-dot gn"></div>Test doubles: mock vs stub vs spy vs fake</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill gn" style="width:60%"></div></div></div>
+            </div>
+            <div class="topic-card gn-c">
+                <div class="topic-rank gn">🟢 Good to Know</div>
+                <div class="topic-title">Maven &amp; Gradle</div>
+                <div class="topic-tags">
+                    <span class="tag gn">pom.xml</span>
+                    <span class="tag gn">build.gradle</span>
+                    <span class="tag yw">Lifecycle</span>
+                </div>
+                <div class="topic-desc">Build tools automate compilation, testing, and packaging. Know the <b>Maven lifecycle phases</b> and how to manage dependency scopes (compile, test, provided, runtime).</div>
+                <div class="topic-subtopics">
+                    <div class="sub-list">
+                        <div class="sub-item"><div class="sub-dot gn"></div>Maven phases: validate → compile → test → package → install → deploy</div>
+                        <div class="sub-item"><div class="sub-dot gn"></div>Dependency scopes and transitive dependency management</div>
+                        <div class="sub-item"><div class="sub-dot gn"></div>Gradle: build.gradle.kts (Kotlin DSL), task graph, incremental builds</div>
+                    </div>
+                </div>
+                <div class="imp-bar-wrap"><div class="imp-bar-label">Interview Frequency</div><div class="imp-bar"><div class="imp-bar-fill gn" style="width:50%"></div></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SUMMARY TABLE ===== -->
+    <div class="sec th-cy">
+        <div class="sec-h">
+            <div class="sec-n" style="background:rgba(163,113,247,0.12);color:#a371f7;border:2px solid rgba(163,113,247,0.3);">★</div>
+            <div>
+                <div class="sec-t" style="color:#a371f7;">Complete Priority Summary</div>
+                <div class="sec-sub">All 16 topics ranked at a glance</div>
+            </div>
+        </div>
+
+        <table class="tbl">
+            <tr>
+                <th>#</th>
+                <th>Topic</th>
+                <th>Tier</th>
+                <th>Frequency</th>
+                <th>Who Asks</th>
+            </tr>
+            <tr><td><b>1</b></td><td><b>OOP Fundamentals</b></td><td><span class="rd">🔥 T1</span></td><td>████████████ 95%</td><td>All levels</td></tr>
+            <tr><td><b>2</b></td><td><b>Collections Framework</b></td><td><span class="rd">🔥 T1</span></td><td>████████████ 98%</td><td>All levels</td></tr>
+            <tr><td><b>3</b></td><td><b>Multithreading &amp; Concurrency</b></td><td><span class="rd">🔥 T1</span></td><td>███████████ 92%</td><td>Mid → Senior</td></tr>
+            <tr><td><b>4</b></td><td><b>Java Memory Model &amp; GC</b></td><td><span class="rd">🔥 T1</span></td><td>██████████ 88%</td><td>Mid → Senior</td></tr>
+            <tr><td><b>5</b></td><td><b>Java 8+ Features (Streams, Lambdas)</b></td><td><span class="yw">⚡ T2</span></td><td>██████████ 90%</td><td>All levels</td></tr>
+            <tr><td><b>6</b></td><td><b>Exception Handling</b></td><td><span class="yw">⚡ T2</span></td><td>█████████ 85%</td><td>All levels</td></tr>
+            <tr><td><b>7</b></td><td><b>String Internals</b></td><td><span class="yw">⚡ T2</span></td><td>█████████ 87%</td><td>All levels</td></tr>
+            <tr><td><b>8</b></td><td><b>Generics &amp; Type System</b></td><td><span class="yw">⚡ T2</span></td><td>████████ 72%</td><td>Mid → Senior</td></tr>
+            <tr><td><b>9</b></td><td><b>Design Patterns</b></td><td><span class="cy">🔵 T3</span></td><td>████████ 75%</td><td>Mid → Senior</td></tr>
+            <tr><td><b>10</b></td><td><b>SOLID Principles</b></td><td><span class="cy">🔵 T3</span></td><td>███████ 70%</td><td>Mid → Senior</td></tr>
+            <tr><td><b>11</b></td><td><b>JVM Internals</b></td><td><span class="cy">🔵 T3</span></td><td>██████ 60%</td><td>Senior+</td></tr>
+            <tr><td><b>12</b></td><td><b>I/O, NIO &amp; Serialization</b></td><td><span class="cy">🔵 T3</span></td><td>██████ 58%</td><td>Mid → Senior</td></tr>
+            <tr><td><b>13</b></td><td><b>Reflection &amp; Annotations</b></td><td><span class="gn">🟢 T4</span></td><td>█████ 50%</td><td>Senior+</td></tr>
+            <tr><td><b>14</b></td><td><b>Modern Java (9–21)</b></td><td><span class="gn">🟢 T4</span></td><td>█████ 55%</td><td>All (growing)</td></tr>
+            <tr><td><b>15</b></td><td><b>JDBC &amp; JPA / Hibernate</b></td><td><span class="gn">🟢 T4</span></td><td>█████ 55%</td><td>Backend roles</td></tr>
+            <tr><td><b>16</b></td><td><b>Testing &amp; Build Tools</b></td><td><span class="gn">🟢 T4</span></td><td>████ 45%</td><td>All levels</td></tr>
+        </table>
+
+        <div class="callout gn" style="margin-top:24px;">
+            <div class="callout-icon">💡</div>
+            <div class="callout-body">
+                <div class="co-title gn">Study Strategy</div>
+                <div class="co-text">For a <b>30-day interview prep</b>: spend Days 1–10 mastering Tier 1 topics (OOP, Collections, Concurrency, Memory). Days 11–20 on Tier 2 (Java 8+, Exceptions, Strings, Generics). Days 21–28 on Tier 3 (Design Patterns, SOLID, JVM, I/O). Reserve Days 29–30 for Tier 4 topics and mock interviews. <b>Always practice writing code</b> — not just reading about concepts.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <div class="footer">
+        <div class="author">
+            <div class="avatar">AN</div>
+            <div>
+                <div class="author-name">Amaan Nirban</div>
+                <div class="author-tag">Java Developer &amp; Technical Writer · <span>Core Java Series</span></div>
+            </div>
+        </div>
+        <div class="cta-group">
+            <button class="cta save">⭐ Save This Guide</button>
+            <button class="cta follow">Follow for More</button>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
